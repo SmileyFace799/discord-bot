@@ -9,6 +9,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+/**
+ * Contains all miscellaneous commands that don't fit anywhere else.
+ */
 public class Misc {
     private Misc() {
         throw new IllegalStateException("Utility class");
@@ -36,10 +39,9 @@ public class Misc {
                     Objects.requireNonNull(stringOption);
                     event.reply(stringOption.getAsString()).queue();
                 }
-            }
-    )
-            .collect(Collectors.toMap(
+            }).collect(Collectors.toMap(
                     command -> command.getData().getName(),
                     command -> command
-            ));
+            )
+    );
 }
