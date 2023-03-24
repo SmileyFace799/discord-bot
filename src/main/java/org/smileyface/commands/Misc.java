@@ -27,7 +27,7 @@ public class Misc {
             },
             new BotCommand(Commands
                     .slash("say", "Bot will say anything you want")
-                    .addOption(OptionType.STRING,"string",
+                    .addOption(OptionType.STRING, "string",
                             "The string of text the bot should say", true)
             ) {
                 @Override

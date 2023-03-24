@@ -19,10 +19,12 @@ public class Token {
     public static String get(String botName) throws NoSuchFileException {
         Path tokenFile = Paths.get(TOKENS_PATH + botName + TOKEN_EXTENSION);
         String token;
-        try (BufferedReader tokenReader = Files.newBufferedReader(tokenFile, StandardCharsets.UTF_8)) {
+        try (BufferedReader tokenReader =
+                     Files.newBufferedReader(tokenFile, StandardCharsets.UTF_8)) {
             token = tokenReader.readLine();
         } catch (IOException ioe) {
-            throw new NoSuchFileException("Could not find a token for any bot named \"" + botName + "\"");
+            throw new NoSuchFileException("Could not find a token for any bot named \""
+                    + botName + "\"");
         }
         return token;
     }
