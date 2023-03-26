@@ -46,7 +46,6 @@ public class Main {
                 .toList()).queue();
 
         Presence botPresence = jda.getPresence();
-        botPresence.setStatus(OnlineStatus.IDLE);
-        botPresence.setActivity(Activity.playing("Being updated :)"));
+        botPresence.setActivity(Activity.playing("Now with slash commands :D"));
     }
 }
