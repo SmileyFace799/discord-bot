@@ -12,12 +12,11 @@ import java.nio.file.Paths;
  * Utility class for fetching bot tokens.
  */
 public class Token {
+    private static final String TOKENS_PATH = "tokens/";
+    private static final String TOKEN_EXTENSION = ".token";
     private Token() {
         throw new IllegalStateException("Utility class");
     }
-
-    private static final String TOKENS_PATH = "tokens/";
-    private static final String TOKEN_EXTENSION = ".token";
 
     /**
      * Gets a bot's token based on its name.
@@ -37,5 +36,25 @@ public class Token {
                     + botName + "\"");
         }
         return token;
+    }
+
+    /**
+     * Gets the token of the active bot.
+     * The active bot is the bot name located in an "activeBot.txt"-file,
+     * in the same path as the application.
+     *
+     * @return The bot token
+     * @throws NoSuchFileException If no active bot is found,
+     *                             or no token is found for the active bot name.
+     */
+    public static String getActive() throws NoSuchFileException {
+        String name;
+        try (BufferedReader nameReader =
+                     Files.newBufferedReader(Paths.get("activeBot.txt"), StandardCharsets.UTF_8)) {
+            name = nameReader.readLine();
+        } catch (IOException ioe) {
+            throw new NoSuchFileException("Could not find an active bot");
+        }
+        return get(name);
     }
 }

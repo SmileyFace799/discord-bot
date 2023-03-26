@@ -18,8 +18,6 @@ import org.smileyface.listeners.SlashCommandListener;
  * Main class for starting the bot.
  */
 public class Main {
-    private static final String ACTIVE_BOT = "YorthiccBot";
-
     /**
      * Starts the bot.
      *
@@ -29,7 +27,7 @@ public class Main {
      */
     public static void main(String[] args) throws NoSuchFileException, InterruptedException {
         JDA jda = JDABuilder.createDefault(
-                Token.get(ACTIVE_BOT.toLowerCase()), GatewayIntent.GUILD_VOICE_STATES)
+                Token.getActive(), GatewayIntent.GUILD_VOICE_STATES)
                 .disableCache(CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS)
                 .addEventListeners(new ReadyListener(), new SlashCommandListener())
                 .build();
@@ -45,6 +43,6 @@ public class Main {
                 .toList()).queue();
 
         Presence botPresence = jda.getPresence();
-        botPresence.setActivity(Activity.playing("Now with slash commands :D"));
+        botPresence.setActivity(Activity.playing("Actually working :D"));
     }
 }

@@ -12,7 +12,7 @@ public class ReadyListener implements EventListener {
     @Override
     public void onEvent(@NotNull GenericEvent event) {
         if (event instanceof ReadyEvent) {
-            System.out.println("API is ready!");
+            System.out.println(event.getJDA().getSelfUser().getName() + " is ready");
         }
     }
 }
