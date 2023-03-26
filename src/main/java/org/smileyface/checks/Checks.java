@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.smileyface.audio.MusicManager;
+import org.smileyface.audio.TrackQueue;
 
 /**
  * A bunch of defined checks that check the bot's current state.
@@ -57,5 +59,20 @@ public class Checks {
             throw new CheckFailedException(
                     "The bot is not connected to the voice channel you're in");
         }
+    }
+
+    /**
+     * Checks if the bot is playing music.
+     *
+     * @param guildId The guild to check if the bot is playing music in
+     * @return The queue the bot is playing from
+     * @throws CheckFailedException If the bot is not playing music
+     */
+    public static TrackQueue isPlaying(String guildId) throws CheckFailedException {
+        TrackQueue queue = MusicManager.getInstance().getQueue(guildId);
+        if (queue == null) {
+            throw new CheckFailedException("The bot is not playing any music");
+        }
+        return queue;
     }
 }

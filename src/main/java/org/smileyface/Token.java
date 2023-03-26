@@ -8,6 +8,9 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Utility class for fetching bot tokens.
+ */
 public class Token {
     private Token() {
         throw new IllegalStateException("Utility class");
@@ -16,6 +19,13 @@ public class Token {
     private static final String TOKENS_PATH = "tokens/";
     private static final String TOKEN_EXTENSION = ".token";
 
+    /**
+     * Gets a bot's token based on its name.
+     *
+     * @param botName The bot name to get the token for
+     * @return The bot token
+     * @throws NoSuchFileException If no token is found for the specified bot name.
+     */
     public static String get(String botName) throws NoSuchFileException {
         Path tokenFile = Paths.get(TOKENS_PATH + botName + TOKEN_EXTENSION);
         String token;

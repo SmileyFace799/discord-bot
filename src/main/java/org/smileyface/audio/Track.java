@@ -1,0 +1,46 @@
+package org.smileyface.audio;
+
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import net.dv8tion.jda.api.entities.Member;
+
+/**
+ * Stores info about a queued track.
+ */
+public class Track {
+    private final AudioTrack audio;
+    private final AudioTrackInfo info;
+    private final Member queuedBy;
+
+    /**
+     * Creates a new playable track.
+     *
+     * @param audio The track audio
+     * @param queuedBy The member who queued the track
+     */
+    public Track(AudioTrack audio, Member queuedBy) {
+        this.audio = audio;
+        this.info = audio.getInfo();
+        this.queuedBy = queuedBy;
+    }
+
+    public AudioTrack getAudio() {
+        return audio;
+    }
+
+    public String getTitle() {
+        return info.title;
+    }
+
+    public String getAuthor() {
+        return info.author;
+    }
+
+    public String getLink() {
+        return info.uri;
+    }
+
+    public Member getQueuedBy() {
+        return queuedBy;
+    }
+}

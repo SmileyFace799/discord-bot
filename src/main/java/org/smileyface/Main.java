@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.managers.Presence;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.smileyface.commands.BotCommand;
 import org.smileyface.commands.CommandManager;
 import org.smileyface.listeners.ReadyListener;
@@ -30,6 +31,7 @@ public class Main {
     public static void main(String[] args) throws NoSuchFileException, InterruptedException {
         JDA jda = JDABuilder.createDefault(
                 Token.get(ACTIVE_BOT.toLowerCase()), GatewayIntent.GUILD_VOICE_STATES)
+                .disableCache(CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS)
                 .addEventListeners(new ReadyListener(), new SlashCommandListener())
                 .build();
 
