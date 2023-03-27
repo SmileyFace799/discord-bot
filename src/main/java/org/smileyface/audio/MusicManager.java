@@ -103,7 +103,7 @@ public class MusicManager {
 
             @Override
             public void noMatches() {
-                hook.sendMessage("Couldn't find song/video/playlist").setEphemeral(true).queue();
+                hook.sendMessage("Couldn't find song/video/playlist").queue();
             }
 
             @Override
@@ -111,7 +111,7 @@ public class MusicManager {
                 if (fe.severity.equals(FriendlyException.Severity.COMMON)) {
                     hook.sendMessage(fe.getMessage()).queue();
                 } else {
-                    hook.sendMessage("An unknown error occurred").setEphemeral(true).queue();
+                    hook.sendMessage("An unknown error occurred").queue();
                     System.out.println("loadFailed: " + fe.getMessage());
                 }
             }

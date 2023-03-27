@@ -1,3 +1,4 @@
+#Ignore:
 *.iml
 .idea/
 target/
@@ -5,3 +6,6 @@ tokens/
 lib/
 *.txt
 dependency-reduced-pom.xml
+
+#Exceptions
+!changelog.txt

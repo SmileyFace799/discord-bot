@@ -77,6 +77,15 @@ public class Music {
                             event.getOption("input")).getAsString();
 
                     if ((identifier.startsWith("https://") || identifier.startsWith("http://"))) {
+                        if (
+                                identifier.toLowerCase().contains("youtube.com")
+                                && identifier.contains("v=")
+                                && identifier.contains("list=")
+                        ) {
+                            //If it's a YouTube video in a playlist, only play that video
+                            identifier = "https://www.youtube.com/watch?v="
+                                    + identifier.split("v=")[1].split("&")[0];
+                        }
                         event.deferReply().queue();
                         MusicManager.getInstance().queue(identifier, author, event.getHook());
                     } else {

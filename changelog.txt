@@ -1,0 +1,16 @@
+Changelog:
+
+v1.0.1:
+ * Upon playing a YouTube video from a playlist, the bot will only play that video, and not the entire playlist
+
+v1.0.0:
+ + /ping
+ + /say
+ + /join
+ + /leave
+ + /stop (shortcut for /leave)
+ + /play
+ + /p (shortcut for /play)
+ + /skip
+ + /queue
+ + /q (shortcut for /queue)
