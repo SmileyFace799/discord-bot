@@ -4,3 +4,4 @@ target/
 tokens/
 lib/
 *.txt
+dependency-reduced-pom.xml
