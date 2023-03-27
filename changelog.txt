@@ -1,6 +1,7 @@
 Changelog:
 
 v1.0.1:
+ + README
  + Changelog
  * Upon playing a YouTube video from a playlist, the bot will only play that video, and not the entire playlist
 
