@@ -8,4 +8,3 @@ lib/
 dependency-reduced-pom.xml
 
 #Exceptions
-!changelog.txt
