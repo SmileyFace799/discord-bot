@@ -4,7 +4,7 @@ v1.0.1:
 - Added: README.md
 - Added: Changelog.md
 - Modified: Upon playing a YouTube video from a playlist, the bot will only play that video, and not the entire playlist
-- Modified: The token file name specified inside "activeBot"
+- Modified: The token file name specified inside "activeBot.txt" is no longer case sensitive
 
 v1.0.0:
 - Added: /ping
