@@ -95,10 +95,14 @@ public class MusicManager {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                for (AudioTrack audio : playlist.getTracks()) {
-                    queue.queue(new Track(audio, queuedBy));
+                if (playlist.isSearchResult()) {
+                    trackLoaded(playlist.getTracks().get(0));
+                } else {
+                    for (AudioTrack audio : playlist.getTracks()) {
+                        queue.queue(new Track(audio, queuedBy));
+                    }
+                    hook.sendMessage("Playlist added to queue: " + playlist.getName()).queue();
                 }
-                hook.sendMessage("Playlist added to queue: " + playlist.getName()).queue();
             }
 
             @Override

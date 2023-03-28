@@ -1,5 +1,8 @@
 Changelog:
 
+v1.1.0
+- Added: YouTube search feature
+
 v1.0.1:
 - Added: README.md
 - Added: Changelog.md
