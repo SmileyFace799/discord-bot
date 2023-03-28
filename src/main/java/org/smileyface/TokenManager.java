@@ -11,11 +11,11 @@ import java.nio.file.Paths;
 /**
  * Utility class for fetching bot tokens.
  */
-public class Token {
+public class TokenManager {
     private static final String TOKENS_PATH = "tokens/";
     private static final String TOKEN_EXTENSION = ".token";
 
-    private Token() {
+    private TokenManager() {
         throw new IllegalStateException("Utility class");
     }
 
@@ -26,7 +26,7 @@ public class Token {
      * @return The bot token
      * @throws NoSuchFileException If no token is found for the specified bot name.
      */
-    public static String get(String botName) throws NoSuchFileException {
+    public static String getBot(String botName) throws NoSuchFileException {
         Path tokenFile = Paths.get(TOKENS_PATH + botName.toLowerCase() + TOKEN_EXTENSION);
         String token;
         try (BufferedReader tokenReader =
@@ -48,7 +48,7 @@ public class Token {
      * @throws NoSuchFileException If no active bot is found,
      *                             or no token is found for the active bot name.
      */
-    public static String getActive() throws NoSuchFileException {
+    public static String getActiveBot() throws NoSuchFileException {
         String name;
         try (BufferedReader nameReader =
                      Files.newBufferedReader(Paths.get("activeBot.txt"), StandardCharsets.UTF_8)) {
@@ -56,6 +56,30 @@ public class Token {
         } catch (IOException ioe) {
             throw new NoSuchFileException("Could not find an active bot");
         }
-        return get(name);
+        return getBot(name);
+    }
+
+    /**
+     * Gets an array of strings, containing the following:
+     * <ul>
+     *     <li>A spotify client ID</li>
+     *     <li>A spotify client secret</li>
+     * </ul>
+     * These are found within the "spotifyClient.sptoken"-file, in the "tokens"-folder.
+     *
+     * @return And array contain the spotify client ID & secret
+     * @throws NoSuchFileException If the spotify client file cannot be found
+     */
+    public static String[] getSpotify() throws NoSuchFileException {
+        String[] clientInfo = new String[2];
+        try (BufferedReader nameReader = Files.newBufferedReader(
+                Paths.get("tokens/spotifyClient.sptoken"), StandardCharsets.UTF_8)) {
+            clientInfo[0] = nameReader.readLine();
+            clientInfo[1] = nameReader.readLine();
+        } catch (IOException ioe) {
+            throw new NoSuchFileException("Could not find spotify client info. "
+                    + "Spotify features will not be available");
+        }
+        return clientInfo;
     }
 }

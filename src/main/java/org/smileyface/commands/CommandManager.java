@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.smileyface.checks.CheckFailedException;
+import org.smileyface.checks.CommandFailedException;
 
 /**
  * A middle manager between the bot itself & its commands.
@@ -44,7 +44,7 @@ public class CommandManager {
                 ) {
                     @Override
                     public void run(SlashCommandInteractionEvent event)
-                            throws CheckFailedException {
+                            throws CommandFailedException {
                         command.run(event);
                     }
                 };

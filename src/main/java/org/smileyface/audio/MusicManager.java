@@ -89,7 +89,7 @@ public class MusicManager {
         playerManager.loadItem(identifier, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audio) {
-                queue.queue(new Track(audio, queuedBy));
+                queue.queue(new MusicTrack(audio, queuedBy));
                 hook.sendMessage("Song/video added to queue: " + audio.getInfo().title).queue();
             }
 
@@ -99,7 +99,7 @@ public class MusicManager {
                     trackLoaded(playlist.getTracks().get(0));
                 } else {
                     for (AudioTrack audio : playlist.getTracks()) {
-                        queue.queue(new Track(audio, queuedBy));
+                        queue.queue(new MusicTrack(audio, queuedBy));
                     }
                     hook.sendMessage("Playlist added to queue: " + playlist.getName()).queue();
                 }

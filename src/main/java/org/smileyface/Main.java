@@ -27,7 +27,7 @@ public class Main {
      */
     public static void main(String[] args) throws NoSuchFileException, InterruptedException {
         JDA jda = JDABuilder.createDefault(
-                Token.getActive(), GatewayIntent.GUILD_VOICE_STATES)
+                TokenManager.getActiveBot(), GatewayIntent.GUILD_VOICE_STATES)
                 .disableCache(CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS)
                 .addEventListeners(new ReadyListener(), new SlashCommandListener())
                 .build();

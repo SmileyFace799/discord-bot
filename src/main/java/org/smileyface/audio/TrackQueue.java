@@ -10,9 +10,9 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
  */
 public class TrackQueue {
     private final AudioPlayer player;
-    private final List<Track> queue;
+    private final List<MusicTrack> queue;
     private final GuildMessageChannel playerChannel;
-    private Track currentlyPlaying = null;
+    private MusicTrack currentlyPlaying = null;
 
     /**
      * Creates a queue of audio tracks.
@@ -30,7 +30,7 @@ public class TrackQueue {
         return player;
     }
 
-    public List<Track> getTracks() {
+    public List<MusicTrack> getTracks() {
         return queue;
     }
 
@@ -38,21 +38,21 @@ public class TrackQueue {
         return playerChannel;
     }
 
-    public Track getCurrentlyPlaying() {
+    public MusicTrack getCurrentlyPlaying() {
         return currentlyPlaying;
     }
 
-    public void setCurrentlyPlaying(Track currentlyPlaying) {
+    public void setCurrentlyPlaying(MusicTrack currentlyPlaying) {
         this.currentlyPlaying = currentlyPlaying;
     }
 
     /**
      * Queues a track, and plays it if the player.
      *
-     * @param track The track to queue
+     * @param musicTrack The track to queue
      */
-    public synchronized void queue(Track track) {
-        queue.add(track);
+    public synchronized void queue(MusicTrack musicTrack) {
+        queue.add(musicTrack);
         if (player.getPlayingTrack() == null) {
             playNext();
         }

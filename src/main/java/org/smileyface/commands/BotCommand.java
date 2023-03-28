@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.smileyface.checks.CheckFailedException;
+import org.smileyface.checks.CommandFailedException;
 
 /**
  * Represents a basic bot command. All bot commands are slash commands.
@@ -45,7 +45,7 @@ public abstract class BotCommand {
      * The code to execute when the command is ran.
      *
      * @param event The command event containing contextual information on the executed command.
-     * @throws CheckFailedException If the command is ran in an invalid context.
+     * @throws CommandFailedException If the command is ran in an invalid context.
      */
-    public abstract void run(SlashCommandInteractionEvent event) throws CheckFailedException;
+    public abstract void run(SlashCommandInteractionEvent event) throws CommandFailedException;
 }

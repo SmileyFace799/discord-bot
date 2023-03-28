@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.Member;
 /**
  * Stores info about a queued track.
  */
-public class Track {
+public class MusicTrack {
     private final AudioTrack audio;
     private final AudioTrackInfo info;
     private final Member queuedBy;
@@ -18,7 +18,7 @@ public class Track {
      * @param audio The track audio
      * @param queuedBy The member who queued the track
      */
-    public Track(AudioTrack audio, Member queuedBy) {
+    public MusicTrack(AudioTrack audio, Member queuedBy) {
         this.audio = audio;
         this.info = audio.getInfo();
         this.queuedBy = queuedBy;

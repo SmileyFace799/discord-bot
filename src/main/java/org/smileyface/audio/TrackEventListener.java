@@ -47,15 +47,15 @@ public class TrackEventListener extends AudioEventAdapter {
     @Override
     public void onTrackStart(AudioPlayer player, AudioTrack track) {
         TrackQueue queue = MusicManager.getInstance().getQueue(player);
-        Track startedTrack = queue.getCurrentlyPlaying();
-        if (!startedTrack.getAudio().equals(track)) {
+        MusicTrack startedMusicTrack = queue.getCurrentlyPlaying();
+        if (!startedMusicTrack.getAudio().equals(track)) {
             throw new IllegalStateException("queue.currentlyPlaying isn't the track just started");
         }
         queue.getPlayerChannel().sendMessage("> **Now playing:** \n>   **Title:** "
-                + startedTrack.getTitle() + "\n>   **Uploaded by:** "
-                + startedTrack.getAuthor() + "\n>   **Queued by:** "
-                + startedTrack.getQueuedBy().getEffectiveName() + "\n>   **Link:** `"
-                + startedTrack.getLink() + "`").queue();
+                + startedMusicTrack.getTitle() + "\n>   **Uploaded by:** "
+                + startedMusicTrack.getAuthor() + "\n>   **Queued by:** "
+                + startedMusicTrack.getQueuedBy().getEffectiveName() + "\n>   **Link:** `"
+                + startedMusicTrack.getLink() + "`").queue();
     }
 
     @Override

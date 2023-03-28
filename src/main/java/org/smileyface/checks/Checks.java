@@ -21,14 +21,14 @@ public class Checks {
      *
      * @param member The author that triggered the event.
      * @return The voice channel the member is in
-     * @throws CheckFailedException If the member is not in a voice channel
+     * @throws CommandFailedException If the member is not in a voice channel
      */
-    public static AudioChannel authorInVoice(Member member) throws CheckFailedException {
+    public static AudioChannel authorInVoice(Member member) throws CommandFailedException {
         GuildVoiceState authorVoiceState = Objects.requireNonNull(
                 member.getVoiceState());
 
         if (!authorVoiceState.inAudioChannel()) {
-            throw new CheckFailedException("You're not in a voice channel");
+            throw new CommandFailedException("You're not in a voice channel");
         }
         return Objects.requireNonNull(authorVoiceState.getChannel());
     }
@@ -37,12 +37,13 @@ public class Checks {
      * Checks if the bot is not connected to a voice channel in a server.
      *
      * @param audioManager The bot's audio manager in the specified server.
-     * @throws CheckFailedException If the bot is connected to a voice channel in the server
+     * @throws CommandFailedException If the bot is connected to a voice channel in the server
      *                              corresponding to the specified audio manager.
      */
-    public static void botNotConnected(AudioManager audioManager) throws CheckFailedException {
+    public static void botNotConnected(AudioManager audioManager) throws CommandFailedException {
         if (audioManager.isConnected()) {
-            throw new CheckFailedException("The bot is already connected to another voice channel");
+            throw new CommandFailedException(
+                    "The bot is already connected to another voice channel");
         }
     }
 
@@ -50,13 +51,13 @@ public class Checks {
      * Checks if the bot is connected to the same voice channel as the author.
      *
      * @param audioChannel The voice channel the author is connected to
-     * @throws CheckFailedException If the bot is not connected to the
+     * @throws CommandFailedException If the bot is not connected to the
      *                              same voice channel as the author
      */
     public static void botConnectedToAuthorVoice(AudioChannel audioChannel)
-            throws CheckFailedException {
+            throws CommandFailedException {
         if (!audioChannel.equals(audioChannel.getGuild().getAudioManager().getConnectedChannel())) {
-            throw new CheckFailedException(
+            throw new CommandFailedException(
                     "The bot is not connected to the voice channel you're in");
         }
     }
@@ -66,12 +67,12 @@ public class Checks {
      *
      * @param guildId The guild to check if the bot is playing music in
      * @return The queue the bot is playing from
-     * @throws CheckFailedException If the bot is not playing music
+     * @throws CommandFailedException If the bot is not playing music
      */
-    public static TrackQueue isPlaying(String guildId) throws CheckFailedException {
+    public static TrackQueue isPlaying(String guildId) throws CommandFailedException {
         TrackQueue queue = MusicManager.getInstance().getQueue(guildId);
         if (queue == null) {
-            throw new CheckFailedException("The bot is not playing any music");
+            throw new CommandFailedException("The bot is not playing any music");
         }
         return queue;
     }
