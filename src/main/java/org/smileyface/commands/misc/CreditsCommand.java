@@ -1,6 +1,5 @@
 package org.smileyface.commands.misc;
 
-import java.util.Objects;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,7 +15,7 @@ public class CreditsCommand extends BotCommand {
     @Override
     public void run(SlashCommandInteractionEvent event) {
         JDA jda = event.getJDA();
-        User smiley = Objects.requireNonNull(jda.retrieveUserById(234724168183054336L)).complete();
+        User smiley = jda.retrieveUserById(234724168183054336L).complete();
 
         StringBuilder msg = new StringBuilder("This bot is running on a bot script developed by "
                 + smiley.getName() + "#" + smiley.getDiscriminator() + "."
@@ -33,7 +32,7 @@ public class CreditsCommand extends BotCommand {
         );
 
         //DO NOT REMOVE OR MODIFY THIS
-        User yorthicc = Objects.requireNonNull(jda.retrieveUserById(651563251896942602L)).complete();
+        User yorthicc = jda.retrieveUserById(651563251896942602L).complete();
         if (jda.getSelfUser().getIdLong() != yorthicc.getIdLong()) {
             msg
                     .append("\n\n**Note:** This bot is not an account that belongs to me. ")

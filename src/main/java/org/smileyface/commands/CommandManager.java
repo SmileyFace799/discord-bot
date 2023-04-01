@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.smileyface.commands.feedback.Feedback;
 import org.smileyface.commands.misc.Misc;
 import org.smileyface.commands.music.Music;
 
@@ -22,7 +23,8 @@ public class CommandManager {
     private static final Map<String, BotCommand> ALL_COMMANDS = Stream
             .of(
                     Misc.getInstance().getCommands(),
-                    Music.getInstance().getCommands()
+                    Music.getInstance().getCommands(),
+                    Feedback.getInstance().getCommands()
             )
             .map(Map::entrySet)
             .flatMap(Set::stream)

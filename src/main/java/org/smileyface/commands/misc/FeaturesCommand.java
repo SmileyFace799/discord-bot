@@ -11,13 +11,18 @@ public class FeaturesCommand extends BotCommand {
                 "Shows what optional features the bot currently has"));
     }
 
+    private String boolToString(boolean bool) {
+        return bool ? "Yes" : "No";
+    }
+
     @Override
     public void run(SlashCommandInteractionEvent event) {
-        StringBuilder msg = new StringBuilder("All optional features for this bot:");
 
-        msg.append("\n - Can play Spotify links? ");
-        msg.append(SpotifyManager.getInstance().getApi() != null ? "Yes" : "No");
+        String msg = "All optional features for this bot:" + "\n - Can play Spotify links? " +
+                boolToString(SpotifyManager.getInstance().getApi() != null) +
+                "\n - Can report issues? " +
+                boolToString(event.getJDA().getSelfUser().getIdLong() == 651563251896942602L);
 
-        event.reply(msg.toString()).setEphemeral(true).queue();
+        event.reply(msg).setEphemeral(true).queue();
     }
 }
