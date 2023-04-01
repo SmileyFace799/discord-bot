@@ -1,5 +1,14 @@
 Changelog:
 
+v1.2.0
+ - Added: Spotify features, can now queue Spotify songs, albums & playlists. 
+   Note that it doesn't actually play from Spotify, it just finds the songs on YouTube & plays them from there.
+   Due to this, the bot might, in very rare cases, queue the wrong song. <b>This is a known issue that will not be fixed</b>
+ - Modified: Play command can now queue multiple songs with a single command, if the input is a list of links.
+   This does not work for search inputs
+ - Modified: Code structure, commands are stores in their own classes, and categories have their own singleton class
+ - Modified: README.md, includes instructions on setting up Spotify functionality
+
 v1.1.0
 - Added: YouTube search feature
 

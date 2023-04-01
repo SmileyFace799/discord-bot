@@ -14,7 +14,11 @@ public class SlashCommandListener extends ListenerAdapter {
         try {
             CommandManager.getCommand(event.getName()).run(event);
         } catch (CommandFailedException cfe) {
-            event.reply(cfe.getMessage()).setEphemeral(true).queue();
+            if (event.isAcknowledged()) {
+                event.getHook().sendMessage(cfe.getMessage()).queue();
+            } else {
+                event.reply(cfe.getMessage()).setEphemeral(true).queue();
+            }
         }
     }
 }

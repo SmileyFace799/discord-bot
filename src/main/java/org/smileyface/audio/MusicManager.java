@@ -9,6 +9,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.dv8tion.jda.api.entities.Member;
@@ -83,8 +84,7 @@ public class MusicManager {
      * @param identifier The unique identifier for the track / playlist
      * @param queuedBy The member who queued the audio.
      */
-    public void queue(String identifier, Member queuedBy, InteractionHook hook)
-            throws FriendlyException {
+    public void queue(String identifier, Member queuedBy, InteractionHook hook) {
         TrackQueue queue = queues.get(queuedBy.getGuild().getId());
         playerManager.loadItem(identifier, new AudioLoadResultHandler() {
             @Override
@@ -120,6 +120,43 @@ public class MusicManager {
                 }
             }
         });
+    }
+
+    public void queueMultiple(List<String> identifiers, Member queuedBy, InteractionHook hook) {
+        TrackQueue queue = queues.get(queuedBy.getGuild().getId());
+        for (String identifier : identifiers) {
+            playerManager.loadItemOrdered(0, identifier, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack audio) {
+                    queue.queue(new MusicTrack(audio, queuedBy));
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {
+                    if (playlist.isSearchResult()) {
+                        trackLoaded(playlist.getTracks().get(0));
+                    } else {
+                        for (AudioTrack audio : playlist.getTracks()) {
+                            queue.queue(new MusicTrack(audio, queuedBy));
+                        }
+                    }
+                }
+
+                @Override
+                public void noMatches() {
+                    //Do nothing
+                }
+
+                @Override
+                public void loadFailed(FriendlyException fe) {
+                    if (!fe.severity.equals(FriendlyException.Severity.COMMON)) {
+                        System.out.println("loadFailed: " + fe.getMessage());
+                    }
+                }
+            });
+        }
+        hook.sendMessage("Your songs / videos / playlists are being queued!\n"
+                + "(Note: Any not found will be skipped)").queue();
     }
 
     public void stop(String guildId) {
