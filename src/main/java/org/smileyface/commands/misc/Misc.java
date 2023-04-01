@@ -19,7 +19,9 @@ public class Misc extends Category {
     public Misc() {
         super(List.of(
                 new PingCommand(),
-                new SayCommand()
+                new SayCommand(),
+                new FeaturesCommand(),
+                new CreditsCommand()
         ));
     }
 }
