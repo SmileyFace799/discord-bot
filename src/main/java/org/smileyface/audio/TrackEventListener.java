@@ -51,11 +51,6 @@ public class TrackEventListener extends AudioEventAdapter {
         if (!startedMusicTrack.getAudio().equals(track)) {
             throw new IllegalStateException("queue.currentlyPlaying isn't the track just started");
         }
-        queue.getPlayerChannel().sendMessage("> **Now playing:** \n>   **Title:** "
-                + startedMusicTrack.getTitle() + "\n>   **Uploaded by:** "
-                + startedMusicTrack.getAuthor() + "\n>   **Queued by:** "
-                + startedMusicTrack.getQueuedBy().getEffectiveName() + "\n>   **Link:** `"
-                + startedMusicTrack.getLink() + "`").queue();
     }
 
     @Override
@@ -68,7 +63,6 @@ public class TrackEventListener extends AudioEventAdapter {
             if (queue.hasNext()) {
                 queue.playNext();
             } else {
-                queue.getPlayerChannel().sendMessage("> All songs finished").queue();
                 Music.leaveVoiceIfConnected(queue.getPlayerChannel().getGuild());
             }
         }

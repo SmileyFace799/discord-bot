@@ -1,5 +1,14 @@
 Changelog:
 
+v1.4.0:
+- Added: A music player embed, that is constantly updated to avoid chat spam
+- Added: /showplayer
+- Modified: The music player now informs about who did the last command that affected it, and what that command was
+- Modified: The skip command can now skip multiple songs
+- Modified: The command category class is now abstract
+- Modified: All usages of various IDs are now done through "{...}.getIdLong()" for consistency
+- Removed: Music player status messages. These were replaced by the music player embed
+
 v1.3.0
 - Added: Feedback commands
 - Added: /knownissues

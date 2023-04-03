@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.smileyface.checks.CommandFailedException;
 
-public class Category {
+public abstract class Category {
     private final Map<String, BotCommand> commands;
 
-    public Category(List<BotCommand> commandList) {
+    protected Category(List<BotCommand> commandList) {
         this.commands = commandList.stream().collect(Collectors.toMap(
                 command -> command.getData().getName(),
                 command -> command

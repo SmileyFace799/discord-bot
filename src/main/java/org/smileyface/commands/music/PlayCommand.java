@@ -148,7 +148,7 @@ public class PlayCommand extends BotCommand {
 
     @Override
     public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
-        event.deferReply().queue();
+        event.deferReply().setEphemeral(true).queue();
         Member author = Objects.requireNonNull(event.getMember());
         Music.joinIfNotConnected(author, event.getGuildChannel());
 
