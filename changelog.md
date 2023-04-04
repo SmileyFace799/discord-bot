@@ -1,5 +1,10 @@
 Changelog:
 
+v1.4.1
+- Modified: Fixed a bug where only searched songs, Spotify songs & YouTube videos in playlists were getting queued
+- Modified: Fixed a bug where the music player embed didn't update upon songs finishing
+- Modified: Reduced cognitive complexity of play command's "run(...)"-method
+
 v1.4.0:
 - Added: A music player embed, that is constantly updated to avoid chat spam
 - Added: /showplayer

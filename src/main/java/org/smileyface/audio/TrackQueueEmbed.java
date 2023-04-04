@@ -39,11 +39,14 @@ public class TrackQueueEmbed {
                     .addField("Link:", current.getLink(), false);
         }
         if (lastCommand != null) {
-            embedBuilder.setFooter("Last command: " + lastCommand);
+            embedBuilder.setFooter("Last command - " + lastCommand);
         }
         return embedBuilder.build();
     }
 
+    /**
+     * Updates the player message, and makes it if it doesn't exist yet.
+     */
     public void updateEmbed() {
         if (playerMessage == null) {
             showPlayer();
@@ -52,6 +55,9 @@ public class TrackQueueEmbed {
         }
     }
 
+    /**
+     * Shows a new player message, and deletes the old one if it exists.
+     */
     public void showPlayer() {
         if (playerMessage != null) {
             playerMessage.delete().queue();
@@ -62,12 +68,22 @@ public class TrackQueueEmbed {
                 .complete();
     }
 
+    /**
+     * Sets the footer with the last command used.
+     *
+     * @param author The author of that command
+     * @param lastCommand A description of what the last command was
+     */
     public void setLastCommand(Member author, String lastCommand) {
         this.lastCommand = author.getEffectiveName() + ": " + lastCommand;
         updateEmbed();
     }
 
+    /**
+     * Signals that the player has closed, and updates the message accordingly.
+     */
     public void playerClosed() {
         this.musicEnded = true;
+        updateEmbed();
     }
 }
