@@ -171,6 +171,8 @@ public class PlayCommand extends BotCommand {
                             + identifier.split("v=")[1].split("&")[0]);
                 } else if (identifier.contains("open.spotify.com")) {
                     identifiers.addAll(spotifyToYouTubeSearch(identifier));
+                } else {
+                    identifiers.add(identifier);
                 }
             }
         } else {
