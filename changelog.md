@@ -21,6 +21,9 @@ v1.3.0
 - Added: /credits
 - Added: /features
 
+v1.2.1
+- Modified: Fixed a bug where only searched songs, Spotify songs & YouTube videos in playlists were getting queued
+
 v1.2.0
 - Added: Spotify features, can now queue Spotify songs, albums & playlists. 
   Note that it doesn't actually play from Spotify, it just finds the songs on YouTube & plays them from there.
