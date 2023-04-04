@@ -1,7 +1,18 @@
 Changelog:
 
-v1.3.1
+v1.4.1
 - Modified: Fixed a bug where only searched songs, Spotify songs & YouTube videos in playlists were getting queued
+- Modified: Fixed a bug where the music player embed didn't update upon songs finishing
+- Modified: Reduced cognitive complexity of play command's "run(...)"-method
+
+v1.4.0:
+- Added: A music player embed, that is constantly updated to avoid chat spam
+- Added: /showplayer
+- Modified: The music player now informs about who did the last command that affected it, and what that command was
+- Modified: The skip command can now skip multiple songs
+- Modified: The command category class is now abstract
+- Modified: All usages of various IDs are now done through "{...}.getIdLong()" for consistency
+- Removed: Music player status messages. These were replaced by the music player embed
 
 v1.3.0
 - Added: Feedback commands
@@ -9,6 +20,9 @@ v1.3.0
 - Added: /reportissue
 - Added: /credits
 - Added: /features
+
+v1.2.1
+- Modified: Fixed a bug where only searched songs, Spotify songs & YouTube videos in playlists were getting queued
 
 v1.2.0
 - Added: Spotify features, can now queue Spotify songs, albums & playlists. 

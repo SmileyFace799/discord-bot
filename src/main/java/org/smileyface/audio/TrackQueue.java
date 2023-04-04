@@ -1,7 +1,7 @@
 package org.smileyface.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
@@ -12,6 +12,7 @@ public class TrackQueue {
     private final AudioPlayer player;
     private final List<MusicTrack> queue;
     private final GuildMessageChannel playerChannel;
+    private final TrackQueueEmbed trackQueueEmbed;
     private MusicTrack currentlyPlaying = null;
 
     /**
@@ -22,8 +23,9 @@ public class TrackQueue {
      */
     public TrackQueue(AudioPlayer player, GuildMessageChannel playerChannel) {
         this.player = player;
-        this.queue = new ArrayList<>();
+        this.queue = new LinkedList<>();
         this.playerChannel = playerChannel;
+        this.trackQueueEmbed = new TrackQueueEmbed(this);
     }
 
     public AudioPlayer getPlayer() {
@@ -36,6 +38,10 @@ public class TrackQueue {
 
     public GuildMessageChannel getPlayerChannel() {
         return playerChannel;
+    }
+
+    public TrackQueueEmbed getTrackQueueEmbed() {
+        return trackQueueEmbed;
     }
 
     public MusicTrack getCurrentlyPlaying() {
@@ -70,15 +76,21 @@ public class TrackQueue {
     /**
      * Plays the next track.
      */
-    public void playNext() {
+    public synchronized void playNext() {
         currentlyPlaying = queue.remove(0);
         player.playTrack(currentlyPlaying.getAudio());
+        trackQueueEmbed.updateEmbed();
     }
 
     /**
      * Skips the currently playing song.
+     *
+     * @param amount THe amount of tracks to skip.
      */
-    public void skip() {
+    public void skip(int amount) {
+        for (int i = amount; i > 1; i--) {
+            queue.remove(0);
+        }
         player.stopTrack();
     }
 
@@ -87,6 +99,6 @@ public class TrackQueue {
      */
     public void stop() {
         player.destroy();
-        playerChannel.sendMessage("> Stopped playing music").queue();
+        trackQueueEmbed.playerClosed();
     }
 }

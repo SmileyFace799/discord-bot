@@ -35,7 +35,7 @@ public class MusicManager {
     }
 
     private final AudioPlayerManager playerManager;
-    private final Map<String, TrackQueue> queues;
+    private final Map<Long, TrackQueue> queues;
 
     private MusicManager() {
         playerManager = new DefaultAudioPlayerManager();
@@ -54,12 +54,11 @@ public class MusicManager {
     public AudioPlayer createPlayer(GuildMessageChannel playerChannel) {
         AudioPlayer player = playerManager.createPlayer();
         player.addListener(TrackEventListener.getInstance());
-        queues.put(playerChannel.getGuild().getId(), new TrackQueue(player, playerChannel));
-        playerChannel.sendMessage("> Joined a voice channel, ready to play music").queue();
+        queues.put(playerChannel.getGuild().getIdLong(), new TrackQueue(player, playerChannel));
         return player;
     }
 
-    public TrackQueue getQueue(String guildId) {
+    public TrackQueue getQueue(long guildId) {
         return queues.get(guildId);
     }
 
@@ -85,12 +84,15 @@ public class MusicManager {
      * @param queuedBy The member who queued the audio.
      */
     public void queue(String identifier, Member queuedBy, InteractionHook hook) {
-        TrackQueue queue = queues.get(queuedBy.getGuild().getId());
+        TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
         playerManager.loadItem(identifier, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audio) {
                 queue.queue(new MusicTrack(audio, queuedBy));
-                hook.sendMessage("Song/video added to queue: " + audio.getInfo().title).queue();
+                String title = audio.getInfo().title;
+                hook.sendMessage("Song/video added to queue: " + title).queue();
+                queue.getTrackQueueEmbed()
+                        .setLastCommand(queuedBy, "Queued \"" + title + "\"");
             }
 
             @Override
@@ -101,7 +103,10 @@ public class MusicManager {
                     for (AudioTrack audio : playlist.getTracks()) {
                         queue.queue(new MusicTrack(audio, queuedBy));
                     }
-                    hook.sendMessage("Playlist added to queue: " + playlist.getName()).queue();
+                    String title = playlist.getName();
+                    hook.sendMessage("Playlist added to queue: " + title).queue();
+                    queue.getTrackQueueEmbed()
+                            .setLastCommand(queuedBy, "Queued \"" + title + "\"");
                 }
             }
 
@@ -123,7 +128,7 @@ public class MusicManager {
     }
 
     public void queueMultiple(List<String> identifiers, Member queuedBy, InteractionHook hook) {
-        TrackQueue queue = queues.get(queuedBy.getGuild().getId());
+        TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
         for (String identifier : identifiers) {
             playerManager.loadItemOrdered(0, identifier, new AudioLoadResultHandler() {
                 @Override
@@ -157,9 +162,11 @@ public class MusicManager {
         }
         hook.sendMessage("Your songs / videos / playlists are being queued!\n"
                 + "(Note: Any not found will be skipped)").queue();
+        queue.getTrackQueueEmbed()
+                .setLastCommand(queuedBy, "Queued multiple songs / videos / playlists");
     }
 
-    public void stop(String guildId) {
+    public void stop(long guildId) {
         queues.remove(guildId).stop();
     }
 }
