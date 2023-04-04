@@ -32,7 +32,8 @@ public class Music extends Category {
                 new LeaveCommand(),
                 new PlayCommand(),
                 new SkipCommand(),
-                new QueueCommand()
+                new QueueCommand(),
+                new ShowPlayerCommand()
         ));
     }
 
@@ -70,8 +71,8 @@ public class Music extends Category {
             guild.getAudioManager().closeAudioConnection();
         }
         try {
-            Checks.isPlaying(guild.getId());
-            MusicManager.getInstance().stop(guild.getId());
+            Checks.isPlaying(guild.getIdLong());
+            MusicManager.getInstance().stop(guild.getIdLong());
         } catch (CommandFailedException cfe) {
             //Do nothing.
         }

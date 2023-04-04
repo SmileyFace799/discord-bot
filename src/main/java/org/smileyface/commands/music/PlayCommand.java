@@ -115,7 +115,6 @@ public class PlayCommand extends BotCommand {
                             youtubeSearch = getYouTubeSearch(
                                     fullTrack.getName(), fullTrack.getArtists());
                         } catch (IOException | SpotifyWebApiException | ParseException e) {
-                            System.out.println("Uh oh, stinky");
                             youtubeSearch = getYouTubeSearch(track.getTrack().getName(), null);
                         }
                         return youtubeSearch;
@@ -146,9 +145,29 @@ public class PlayCommand extends BotCommand {
         return links;
     }
 
+    private List<String> getIdentifiers(String[] links) throws CommandFailedException {
+        List<String> identifiers = new ArrayList<>();
+        for (String link : links) {
+            if (
+                    link.toLowerCase().contains("youtube.com")
+                            && link.contains("v=")
+                            && link.contains("list=")
+            ) {
+                //If it's a YouTube video in a playlist, only play that video
+                identifiers.add("https://www.youtube.com/watch?v="
+                        + link.split("v=")[1].split("&")[0]);
+            } else if (link.contains("open.spotify.com")) {
+                identifiers.addAll(spotifyToYouTubeSearch(link));
+            } else {
+                identifiers.add(link);
+            }
+        }
+        return identifiers;
+    }
+
     @Override
     public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
-        event.deferReply().queue();
+        event.deferReply().setEphemeral(true).queue();
         Member author = Objects.requireNonNull(event.getMember());
         Music.joinIfNotConnected(author, event.getGuildChannel());
 
@@ -160,21 +179,7 @@ public class PlayCommand extends BotCommand {
         if (Arrays.stream(splitInput).allMatch(identifier ->
                 identifier.startsWith("https://") || identifier.startsWith("http://"))
         ) {
-            for (String identifier : splitInput) {
-                if (
-                        identifier.toLowerCase().contains("youtube.com")
-                                && identifier.contains("v=")
-                                && identifier.contains("list=")
-                ) {
-                    //If it's a YouTube video in a playlist, only play that video
-                    identifiers.add("https://www.youtube.com/watch?v="
-                            + identifier.split("v=")[1].split("&")[0]);
-                } else if (identifier.contains("open.spotify.com")) {
-                    identifiers.addAll(spotifyToYouTubeSearch(identifier));
-                } else {
-                    identifiers.add(identifier);
-                }
-            }
+            identifiers.addAll(getIdentifiers(splitInput));
         } else {
             String search = YOUTUBE_SEARCH + input;
             OptionMapping songSearchOption = event.getOption("songsearch");

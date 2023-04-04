@@ -30,7 +30,7 @@ public class QueueCommand extends BotCommand {
         int tracksPerPage = 10;
 
         TrackQueue queue = Checks.isPlaying(
-                Objects.requireNonNull(event.getGuild()).getId());
+                Objects.requireNonNull(event.getGuild()).getIdLong());
 
         OptionMapping pageOption = event.getOption("page");
         List<MusicTrack> musicTracks = new ArrayList<>();

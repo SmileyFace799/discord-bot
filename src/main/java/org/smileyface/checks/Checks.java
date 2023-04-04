@@ -69,7 +69,7 @@ public class Checks {
      * @return The queue the bot is playing from
      * @throws CommandFailedException If the bot is not playing music
      */
-    public static TrackQueue isPlaying(String guildId) throws CommandFailedException {
+    public static TrackQueue isPlaying(long guildId) throws CommandFailedException {
         TrackQueue queue = MusicManager.getInstance().getQueue(guildId);
         if (queue == null) {
             throw new CommandFailedException("The bot is not playing any music");
