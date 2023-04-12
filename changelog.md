@@ -1,5 +1,11 @@
 Changelog:
 
+v1.5.0
+- Added: Component manager, to manage action component instances
+- Added: Modal manager, to manage modal instances
+- Added: Music player embed buttons
+- Modified: Manager classes now have a common super class
+
 v1.4.1
 - Modified: Fixed a bug where the music player embed didn't update upon songs finishing
 - Modified: Reduced cognitive complexity of play command's "run(...)"-method
@@ -24,7 +30,7 @@ v1.2.1
 - Modified: Fixed a bug where only searched songs, Spotify songs & YouTube videos in playlists were getting queued
 
 v1.2.0
-- Added: Spotify features, can now queue Spotify songs, albums & playlists. 
+- Added: Spotify features, can now queue Spotify songs, albums & playlists.
   Note that it doesn't actually play from Spotify, it just finds the songs on YouTube & plays them from there.
   Due to this, the bot might, in very rare cases, queue the wrong song. <b>This is a known issue that will not be fixed</b>
 - Modified: Play command can now queue multiple songs with a single command, if the input is a list of links.

@@ -1,4 +1,4 @@
-package org.smileyface.listeners;
+package org.smileyface.botlisteners;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;

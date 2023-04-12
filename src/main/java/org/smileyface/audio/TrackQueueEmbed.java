@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.smileyface.components.ComponentManager;
 
 public class TrackQueueEmbed {
     private final TrackQueue queue;
@@ -65,6 +66,9 @@ public class TrackQueueEmbed {
         playerMessage = queue
                 .getPlayerChannel()
                 .sendMessageEmbeds(buildEmbed())
+                .addActionRow(ComponentManager
+                        .getInstance()
+                        .getItem("testButton").getComponent())
                 .complete();
     }
 

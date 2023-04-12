@@ -3,7 +3,9 @@ package org.smileyface.commands.music;
 import java.io.IOException;
 import java.util.*;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -34,7 +36,7 @@ public class PlayCommand extends BotCommand {
         );
     }
 
-    private String getYouTubeSearch(String name, ArtistSimplified[] artists) {
+    private static String getYouTubeSearch(String name, ArtistSimplified[] artists) {
         return YOUTUBE_SEARCH
                 + name
                 + " " + (artists == null ? "" : String.join(" ",
@@ -44,7 +46,7 @@ public class PlayCommand extends BotCommand {
                 + " " + YOUTUBE_SONG_FILTER;
     }
 
-    private String getSpotifyTrackSearch(SpotifyApi api, String spotifyLink)
+    private static String getSpotifyTrackSearch(SpotifyApi api, String spotifyLink)
             throws IOException, SpotifyWebApiException, ParseException {
         Track track = api
                 .getTrack(spotifyLink.split("track/")[1].split("\\?")[0])
@@ -53,7 +55,7 @@ public class PlayCommand extends BotCommand {
         return getYouTubeSearch(track.getName(), track.getArtists());
     }
 
-    private List<String> getSpotifyAlbumSearches(SpotifyApi api, String spotifyLink)
+    private static List<String> getSpotifyAlbumSearches(SpotifyApi api, String spotifyLink)
             throws IOException, SpotifyWebApiException, ParseException {
         List<String> links = new ArrayList<>();
         String next = spotifyLink.split("album/")[1].split("\\?")[0];
@@ -84,7 +86,7 @@ public class PlayCommand extends BotCommand {
         return links;
     }
 
-    private List<String> getSpotifyPlaylistSearches(SpotifyApi api, String spotifyLink)
+    private static List<String> getSpotifyPlaylistSearches(SpotifyApi api, String spotifyLink)
             throws IOException, SpotifyWebApiException, ParseException {
         List<String> links = new ArrayList<>();
         String next = spotifyLink.split("playlist/")[1].split("\\?")[0];
@@ -124,7 +126,7 @@ public class PlayCommand extends BotCommand {
         return links;
     }
 
-    private List<String> spotifyToYouTubeSearch(String spotifyLink) throws CommandFailedException {
+    private static List<String> spotifyToYouTubeSearch(String spotifyLink) throws CommandFailedException {
         List<String> links = new ArrayList<>();
         try {
             SpotifyApi api = SpotifyManager.getInstance().getApi();
@@ -145,7 +147,7 @@ public class PlayCommand extends BotCommand {
         return links;
     }
 
-    private List<String> getIdentifiers(String[] links) throws CommandFailedException {
+    private static List<String> getIdentifiers(String[] links) throws CommandFailedException {
         List<String> identifiers = new ArrayList<>();
         for (String link : links) {
             if (
@@ -165,16 +167,17 @@ public class PlayCommand extends BotCommand {
         return identifiers;
     }
 
-    @Override
-    public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
-        event.deferReply().setEphemeral(true).queue();
-        Member author = Objects.requireNonNull(event.getMember());
-        Music.joinIfNotConnected(author, event.getGuildChannel());
+    public static void playTrack(
+            Member author,
+            GuildMessageChannel newPlayerChannel,
+            String input,
+            boolean songSearch,
+            InteractionHook hook
+    ) throws CommandFailedException {
+        Music.joinIfNotConnected(author, newPlayerChannel);
 
         List<String> identifiers = new ArrayList<>();
 
-        String input = Objects.requireNonNull(
-                event.getOption("input")).getAsString();
         String[] splitInput = input.replace("  ", " ").split(" ");
         if (Arrays.stream(splitInput).allMatch(identifier ->
                 identifier.startsWith("https://") || identifier.startsWith("http://"))
@@ -182,16 +185,29 @@ public class PlayCommand extends BotCommand {
             identifiers.addAll(getIdentifiers(splitInput));
         } else {
             String search = YOUTUBE_SEARCH + input;
-            OptionMapping songSearchOption = event.getOption("songsearch");
-            if (songSearchOption != null && songSearchOption.getAsBoolean()) {
+
+            if (songSearch) {
                 search += YOUTUBE_SONG_FILTER;
             }
             identifiers.add(search);
         }
         if (identifiers.size() == 1) {
-            MusicManager.getInstance().queue(identifiers.get(0), author, event.getHook());
+            MusicManager.getInstance().queue(identifiers.get(0), author, hook);
         } else {
-            MusicManager.getInstance().queueMultiple(identifiers, author, event.getHook());
+            MusicManager.getInstance().queueMultiple(identifiers, author, hook);
         }
+    }
+
+    @Override
+    public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
+        event.deferReply().setEphemeral(true).queue();
+        OptionMapping songSearchOption = event.getOption("songsearch");
+        playTrack(
+                Objects.requireNonNull(event.getMember()),
+                Objects.requireNonNull(event.getGuildChannel()),
+                Objects.requireNonNull(event.getOption("input")).getAsString(),
+                songSearchOption != null && songSearchOption.getAsBoolean(),
+                event.getHook()
+        );
     }
 }

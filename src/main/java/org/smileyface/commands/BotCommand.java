@@ -1,8 +1,10 @@
 package org.smileyface.commands;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.smileyface.checks.CommandFailedException;
 
@@ -25,7 +27,7 @@ public abstract class BotCommand {
     /**
      * Makes a bot command.
      *
-     * @param data The command data that specifies how it should be implemented into the bot.
+     * @param data      The command data that specifies how it should be implemented into the bot.
      * @param nicknames Alternative nicknames for the command.
      */
     protected BotCommand(SlashCommandData data, Collection<String> nicknames) {
@@ -37,8 +39,26 @@ public abstract class BotCommand {
         return data;
     }
 
-    public Collection<String> getNicknames() {
-        return nicknames;
+    public Collection<BotCommand> getAllVariants() {
+        Collection<BotCommand> variations = new HashSet<>();
+        variations.add(this);
+        for (String nickname : nicknames) {
+            SlashCommandData commandData = getData();
+            variations.add(new BotCommand(Commands
+                    .slash(nickname, "Shortcut for /" + commandData.getName())
+                    .addOptions(commandData.getOptions())
+                    .setGuildOnly(commandData.isGuildOnly())
+                    .setDefaultPermissions(commandData.getDefaultPermissions())
+                    .setNSFW(commandData.isNSFW())
+            ) {
+                @Override
+                public void run(SlashCommandInteractionEvent event)
+                        throws CommandFailedException {
+                    BotCommand.this.run(event);
+                }
+            });
+        }
+        return variations;
     }
 
     /**

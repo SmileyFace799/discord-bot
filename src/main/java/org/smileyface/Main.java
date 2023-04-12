@@ -11,8 +11,9 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.smileyface.commands.BotCommand;
 import org.smileyface.commands.CommandManager;
-import org.smileyface.listeners.ReadyListener;
-import org.smileyface.listeners.SlashCommandListener;
+import org.smileyface.botlisteners.ComponentListener;
+import org.smileyface.botlisteners.ReadyListener;
+import org.smileyface.botlisteners.SlashCommandListener;
 
 /**
  * Main class for starting the bot.
@@ -29,10 +30,13 @@ public class Main {
         JDA jda = JDABuilder.createDefault(
                 TokenManager.getActiveBot(), GatewayIntent.GUILD_VOICE_STATES)
                 .disableCache(CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS)
-                .addEventListeners(new ReadyListener(), new SlashCommandListener())
+                .addEventListeners(
+                        new ReadyListener(),
+                        new SlashCommandListener(),
+                        new ComponentListener())
                 .build();
 
-        Collection<BotCommand> allCommands = CommandManager.getCommands();
+        Collection<BotCommand> allCommands = CommandManager.getInstance().getItems().values();
 
         jda.awaitReady();
 

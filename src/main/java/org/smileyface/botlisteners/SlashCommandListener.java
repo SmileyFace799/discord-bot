@@ -1,4 +1,4 @@
-package org.smileyface.listeners;
+package org.smileyface.botlisteners;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -11,8 +11,9 @@ import org.smileyface.commands.CommandManager;
 public class SlashCommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        System.out.println("Executed command: " + event.getCommandString());
         try {
-            CommandManager.getCommand(event.getName()).run(event);
+            CommandManager.getInstance().getItem(event.getName()).run(event);
         } catch (CommandFailedException cfe) {
             if (event.isAcknowledged()) {
                 event.getHook().sendMessage(cfe.getMessage()).queue();
