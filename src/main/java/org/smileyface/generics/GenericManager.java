@@ -5,8 +5,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Generic manager class that stores instantiated objects & associates them with keys.
+ *
+ * @param <T> The type of objects to store
+ */
 public class GenericManager<T> {
-    private Map<String, T> itemMap;
+    private final Map<String, T> itemMap;
 
     protected GenericManager(Stream<T> items, Function<T, String> keyFunction) {
         itemMap = items.collect(Collectors.toMap(

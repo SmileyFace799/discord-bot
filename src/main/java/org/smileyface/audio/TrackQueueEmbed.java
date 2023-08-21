@@ -6,6 +6,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.smileyface.components.ComponentManager;
 
+/**
+ * The embed associated with a queue, shown in chat.
+ */
 public class TrackQueueEmbed {
     private final TrackQueue queue;
     private Message playerMessage;
@@ -53,6 +56,9 @@ public class TrackQueueEmbed {
             showPlayer();
         } else {
             playerMessage.editMessageEmbeds(buildEmbed()).queue();
+            if (musicEnded) {
+                playerMessage.getActionRows().clear();
+            }
         }
     }
 

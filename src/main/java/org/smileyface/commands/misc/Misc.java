@@ -9,6 +9,11 @@ import org.smileyface.commands.Category;
 public class Misc extends Category {
     private static Misc instance;
 
+    /**
+     * Singleton.
+     *
+     * @return Singleton instance
+     */
     public static synchronized Misc getInstance() {
         if (instance == null) {
             instance = new Misc();
@@ -16,7 +21,7 @@ public class Misc extends Category {
         return instance;
     }
 
-    public Misc() {
+    private Misc() {
         super(List.of(
                 new PingCommand(),
                 new SayCommand(),

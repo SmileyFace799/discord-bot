@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -21,6 +23,14 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
  */
 public class MusicManager {
     private static MusicManager instance;
+    private final AudioPlayerManager playerManager;
+    private final Map<Long, TrackQueue> queues;
+
+    private MusicManager() {
+        playerManager = new DefaultAudioPlayerManager();
+        AudioSourceManagers.registerRemoteSources(playerManager);
+        queues = new HashMap<>();
+    }
 
     /**
      * Singleton.
@@ -32,15 +42,6 @@ public class MusicManager {
             instance = new MusicManager();
         }
         return instance;
-    }
-
-    private final AudioPlayerManager playerManager;
-    private final Map<Long, TrackQueue> queues;
-
-    private MusicManager() {
-        playerManager = new DefaultAudioPlayerManager();
-        AudioSourceManagers.registerRemoteSources(playerManager);
-        queues = new HashMap<>();
     }
 
     /**
@@ -81,7 +82,9 @@ public class MusicManager {
      * Loads a track / playlist.
      *
      * @param identifier The unique identifier for the track / playlist
-     * @param queuedBy The member who queued the audio.
+     * @param queuedBy   The member who queued the audio.
+     * @param hook       The {@link InteractionHook} to used when responding to the command
+     *                   that queued the audio.
      */
     public void queue(String identifier, Member queuedBy, InteractionHook hook) {
         TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
@@ -121,12 +124,22 @@ public class MusicManager {
                     hook.sendMessage(fe.getMessage()).queue();
                 } else {
                     hook.sendMessage("An unknown error occurred").queue();
-                    System.out.println("loadFailed: " + fe.getMessage());
+                    Logger.getLogger(getClass().getName()).log(
+                            Level.WARNING, "Audio load failed: {0}", fe.getMessage()
+                    );
                 }
             }
         });
     }
 
+    /**
+     * Loads multiple tracks / playlists.
+     *
+     * @param identifiers The unique identifiers for each track / playlist
+     * @param queuedBy    The member who queued the audios
+     * @param hook        The {@link InteractionHook} to used when responding to the command
+     *                    that queued the audios
+     */
     public void queueMultiple(List<String> identifiers, Member queuedBy, InteractionHook hook) {
         TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
         for (String identifier : identifiers) {
@@ -155,7 +168,9 @@ public class MusicManager {
                 @Override
                 public void loadFailed(FriendlyException fe) {
                     if (!fe.severity.equals(FriendlyException.Severity.COMMON)) {
-                        System.out.println("loadFailed: " + fe.getMessage());
+                        Logger.getLogger(getClass().getName()).log(
+                                Level.WARNING, "Audio load failed: {0}", fe.getMessage()
+                        );
                     }
                 }
             });

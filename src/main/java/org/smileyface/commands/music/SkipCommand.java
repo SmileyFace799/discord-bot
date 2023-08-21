@@ -12,7 +12,13 @@ import org.smileyface.checks.Checks;
 import org.smileyface.checks.CommandFailedException;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Skips the current song.
+ */
 public class SkipCommand extends BotCommand {
+    /**
+     * Makes the skip command.
+     */
     public SkipCommand() {
         super(Commands
                 .slash("skip", "Skips the current song")

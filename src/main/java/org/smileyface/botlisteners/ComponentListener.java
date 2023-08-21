@@ -4,11 +4,15 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.smileyface.checks.CommandFailedException;
-import org.smileyface.components.buttons.CommandButton;
 import org.smileyface.components.ComponentManager;
+import org.smileyface.components.buttons.CommandButton;
 import org.smileyface.modals.ModalManager;
 
+/**
+ * Listens to & handles events from components.
+ */
 public class ComponentListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
@@ -19,7 +23,7 @@ public class ComponentListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGenericSelectMenuInteraction(GenericSelectMenuInteractionEvent event) {
+    public void onGenericSelectMenuInteraction(@NotNull GenericSelectMenuInteractionEvent event) {
         //Not used, yet
     }
 

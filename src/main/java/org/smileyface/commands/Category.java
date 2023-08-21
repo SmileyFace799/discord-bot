@@ -1,9 +1,11 @@
 package org.smileyface.commands;
 
 import java.util.List;
-import java.util.Map;
 import org.smileyface.generics.GenericManager;
 
+/**
+ * A category containing commands.
+ */
 public abstract class Category extends GenericManager<BotCommand> {
 
     protected Category(List<BotCommand> commandList) {

@@ -8,7 +8,14 @@ import org.smileyface.checks.Checks;
 import org.smileyface.checks.CommandFailedException;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Shows the music player in a new message.
+ */
 public class ShowPlayerCommand extends BotCommand {
+
+    /**
+     * Makes the show player command.
+     */
     public ShowPlayerCommand() {
         super(Commands
                 .slash("showplayer", "Shows the audio player")

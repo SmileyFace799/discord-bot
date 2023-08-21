@@ -11,7 +11,6 @@ import org.smileyface.commands.CommandManager;
 public class SlashCommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        System.out.println("Executed command: " + event.getCommandString());
         try {
             CommandManager.getInstance().getItem(event.getName()).run(event);
         } catch (CommandFailedException cfe) {

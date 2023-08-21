@@ -14,7 +14,13 @@ import org.smileyface.checks.Checks;
 import org.smileyface.checks.CommandFailedException;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Shows the current song queue.
+ */
 public class QueueCommand extends BotCommand {
+    /**
+     * Makes the queue command.
+     */
     public QueueCommand() {
         super(Commands
                         .slash("queue", "Views the current song queue")

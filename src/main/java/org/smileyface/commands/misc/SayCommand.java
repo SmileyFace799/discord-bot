@@ -7,7 +7,13 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Generic say command.
+ */
 public class SayCommand extends BotCommand {
+    /**
+     * Makes the say command.
+     */
     public SayCommand() {
         super(Commands
                 .slash("say", "Bot will say anything you want")

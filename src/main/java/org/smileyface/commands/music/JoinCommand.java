@@ -8,7 +8,14 @@ import org.smileyface.audio.MusicManager;
 import org.smileyface.checks.CommandFailedException;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Makes the bot join the user's current voice channel.
+ */
 public class JoinCommand extends BotCommand {
+
+    /**
+     * Makes the join command.
+     */
     public JoinCommand() {
         super(Commands
                 .slash("join", "Joins a voice channel")

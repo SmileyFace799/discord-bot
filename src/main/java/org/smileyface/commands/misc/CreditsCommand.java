@@ -6,7 +6,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
 
-//DO NOT REMOVE THIS COMMANDs
+//DO NOT REMOVE THIS COMMAND
+/**
+ * Shows bot credits.
+ */
 public class CreditsCommand extends BotCommand {
     public CreditsCommand() {
         super(Commands.slash("credits", "Shows bot credits"));
@@ -18,7 +21,7 @@ public class CreditsCommand extends BotCommand {
         User smiley = jda.retrieveUserById(234724168183054336L).complete();
 
         StringBuilder msg = new StringBuilder("This bot is running on a bot script developed by "
-                + smiley.getName() + "#" + smiley.getDiscriminator() + "."
+                + smiley.getName() + "."
                 + "\nI'm the single developer behind this bot script, "
                 + "and I've developed it as a hobby project, "
                 + "alongside my studies in computer engineering."
@@ -38,8 +41,7 @@ public class CreditsCommand extends BotCommand {
                     .append("\n\n**Note:** This bot is not an account that belongs to me. ")
                     .append("I do not hold any responsibility for anything harmful or damaging ")
                     .append("done by any bot account other than my own (Which is ")
-                    .append(yorthicc.getName()).append("#")
-                    .append(yorthicc.getDiscriminator()).append("). ")
+                    .append(yorthicc.getName()).append("). ")
                     .append("Therefore, I cannot guarantee that this bot is to be trusted, ")
                     .append("only use this bot if you trust whoever is hosting it.");
         }

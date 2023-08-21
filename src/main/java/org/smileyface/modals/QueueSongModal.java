@@ -10,7 +10,14 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.smileyface.checks.CommandFailedException;
 import org.smileyface.commands.music.PlayCommand;
 
+/**
+ * Shown when {@link org.smileyface.components.buttons.QueueButton QueueButton} is clicked.
+ */
 public class QueueSongModal extends CommandModal {
+
+    /**
+     * Makes the queue song modal.
+     */
     public QueueSongModal() {
         super(Modal.create("queueSong", "Queue a song / video / playlist")
                 .addActionRow(TextInput.create(

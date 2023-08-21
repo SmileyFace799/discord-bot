@@ -4,6 +4,9 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Shows known issues with the bot.
+ */
 public class KnownIssuesCommand extends BotCommand {
     public KnownIssuesCommand() {
         super(Commands.slash("knownissues",

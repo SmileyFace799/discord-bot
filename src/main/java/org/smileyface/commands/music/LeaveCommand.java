@@ -12,7 +12,13 @@ import org.smileyface.checks.Checks;
 import org.smileyface.checks.CommandFailedException;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Makes the bot leave the current voice channel, & stops any music currently playing.
+ */
 public class LeaveCommand extends BotCommand {
+    /**
+     * Makes the leave command.
+     */
     public LeaveCommand() {
         super(Commands
                         .slash("leave", "Makes the bot leave the voice channel you're in")

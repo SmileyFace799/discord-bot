@@ -9,11 +9,11 @@ import net.dv8tion.jda.api.managers.Presence;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.smileyface.commands.BotCommand;
-import org.smileyface.commands.CommandManager;
 import org.smileyface.botlisteners.ComponentListener;
 import org.smileyface.botlisteners.ReadyListener;
 import org.smileyface.botlisteners.SlashCommandListener;
+import org.smileyface.commands.BotCommand;
+import org.smileyface.commands.CommandManager;
 
 /**
  * Main class for starting the bot.

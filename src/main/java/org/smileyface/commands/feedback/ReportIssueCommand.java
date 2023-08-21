@@ -15,13 +15,17 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
 
+/**
+ * Reports an issue with the bot to "me" (bot author).
+ */
 public class ReportIssueCommand extends BotCommand {
-    private static final Collection<Long> REPORT_BLACKLIST = Set.of(
-            //No one, yet :)
-    );
+    private static final Collection<Long> REPORT_BLACKLIST = Set.of(); //No one, yet :)
 
     private final Map<Long, LocalDateTime> reportCoolDowns;
 
+    /**
+     * Makes the report issue command.
+     */
     public ReportIssueCommand() {
         super(Commands.slash("reportissue", "Report an issue with the bot. "
                         + "NB: Make sure to check /knownissues first")
@@ -34,6 +38,7 @@ public class ReportIssueCommand extends BotCommand {
         reportCoolDowns = new HashMap<>();
     }
 
+    @Override
     public void run(SlashCommandInteractionEvent event) {
         OptionMapping topicOption = Objects.requireNonNull(event.getOption("topic"));
         OptionMapping detailsOption = Objects.requireNonNull(event.getOption("details"));
@@ -51,7 +56,7 @@ public class ReportIssueCommand extends BotCommand {
         } else if (jda.getSelfUser().getIdLong() != yorthicc.getIdLong()) {
             event.reply("This is not a bot account that belongs to me."
                     + "\nPlease make sure sure the issue still persists with my bot before "
-                    + "reporting it (" + yorthicc.getName() + "#" + yorthicc.getDiscriminator()
+                    + "reporting it (" + yorthicc.getName()
                     + "). If the issue still persists, report it through my bot. "
                     + "If you do not share a server with my bot, "
                     + "message the host of this bot about this issue instead."
@@ -72,7 +77,7 @@ public class ReportIssueCommand extends BotCommand {
         } else {
             User me = jda.retrieveUserById(234724168183054336L).complete();
             me.openPrivateChannel().complete().sendMessage("**New reported issue:**"
-                    + "\n\nReported by: " + author.getName() + "#" + author.getDiscriminator()
+                    + "\n\nReported by: " + author.getName()
                     + "\nAuthor ID: " + author.getId()
                     + "\n\n**Topic:**\n" + topic
                     + "\n\n**Details:**\n" + details
@@ -80,7 +85,7 @@ public class ReportIssueCommand extends BotCommand {
             event.reply("Issue has been reported. I may reach out to you for "
                     + "further details about this issue. If you don't have open DMs, "
                     + "I'll send you a friend request (I'm "
-                    + me.getName() + "#" + me.getDiscriminator() + ")"
+                    + me.getName() + ")"
             ).setEphemeral(true).queue();
             reportCoolDowns.put(author.getIdLong(), now.plusHours(1));
         }

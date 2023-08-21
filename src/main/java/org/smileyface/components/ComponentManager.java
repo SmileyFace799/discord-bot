@@ -4,8 +4,12 @@ import java.util.stream.Stream;
 import org.smileyface.components.buttons.QueueButton;
 import org.smileyface.generics.GenericManager;
 
+/**
+ * Intermediary class that instantiates & stores specific components.
+ */
 public class ComponentManager extends GenericManager<CommandComponent> {
     private static ComponentManager instance;
+
     private ComponentManager() {
         super(Stream.of(
                 new QueueButton()

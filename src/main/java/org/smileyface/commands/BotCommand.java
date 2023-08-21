@@ -39,6 +39,14 @@ public abstract class BotCommand {
         return data;
     }
 
+    /**
+     * Get all variants of the command.
+     * These variants will be identical to the original command, except the name.
+     *
+     * @return A list of command variants, one for each nickname in the `nicknames`-collection
+     *         passed to the constructor.
+     *         The returned collection will also include this command itself
+     */
     public Collection<BotCommand> getAllVariants() {
         Collection<BotCommand> variations = new HashSet<>();
         variations.add(this);

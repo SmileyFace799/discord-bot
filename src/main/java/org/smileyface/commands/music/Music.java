@@ -19,6 +19,11 @@ import org.smileyface.commands.Category;
 public class Music extends Category {
     private static Music instance;
 
+    /**
+     * Singleton.
+     *
+     * @return Singleton instance
+     */
     public static synchronized Music getInstance() {
         if (instance == null) {
             instance = new Music();
@@ -26,7 +31,7 @@ public class Music extends Category {
         return instance;
     }
 
-    public Music() {
+    private Music() {
         super(List.of(
                 new JoinCommand(),
                 new LeaveCommand(),
