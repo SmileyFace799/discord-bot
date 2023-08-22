@@ -57,7 +57,7 @@ public class TrackQueueEmbed {
         } else {
             playerMessage.editMessageEmbeds(buildEmbed()).queue();
             if (musicEnded) {
-                playerMessage.getActionRows().clear();
+                playerMessage.getComponents().clear();
             }
         }
     }
@@ -69,12 +69,11 @@ public class TrackQueueEmbed {
         if (playerMessage != null) {
             playerMessage.delete().queue();
         }
+        ComponentManager componentManager = ComponentManager.getInstance();
         playerMessage = queue
                 .getPlayerChannel()
                 .sendMessageEmbeds(buildEmbed())
-                .addActionRow(ComponentManager
-                        .getInstance()
-                        .getItem("testButton"))
+                .addActionRow(componentManager.getItem("queueButton"))
                 .complete();
     }
 

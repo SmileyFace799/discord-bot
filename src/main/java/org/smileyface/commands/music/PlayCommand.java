@@ -200,7 +200,7 @@ public class PlayCommand extends BotCommand {
             boolean songSearch,
             InteractionHook hook
     ) throws CommandFailedException {
-        Music.joinIfNotConnected(author, newPlayerChannel);
+        JoinCommand.joinIfNotConnected(author, newPlayerChannel);
 
         List<String> identifiers = new ArrayList<>();
 

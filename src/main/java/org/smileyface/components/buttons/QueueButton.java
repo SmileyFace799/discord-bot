@@ -9,7 +9,7 @@ import org.smileyface.modals.ModalManager;
  */
 public class QueueButton extends CommandButton {
     public QueueButton() {
-        super(ButtonStyle.SECONDARY, "testButton", "Queue more");
+        super(ButtonStyle.SECONDARY, "queueButton", "Queue more");
     }
 
     @Override

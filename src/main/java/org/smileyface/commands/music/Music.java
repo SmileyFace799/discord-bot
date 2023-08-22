@@ -1,13 +1,8 @@
 package org.smileyface.commands.music;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.smileyface.audio.LavaPlayerJdaWrapper;
 import org.smileyface.audio.MusicManager;
 import org.smileyface.checks.Checks;
 import org.smileyface.checks.CommandFailedException;
@@ -40,29 +35,6 @@ public class Music extends Category {
                 new QueueCommand(),
                 new ShowPlayerCommand()
         ));
-    }
-
-    protected static void joinVoiceOfMember(Member memberToJoin, GuildMessageChannel playerChannel)
-            throws CommandFailedException {
-        AudioChannel audioChannel = Checks.authorInVoice(memberToJoin);
-        Guild memberGuild = memberToJoin.getGuild();
-        AudioManager audioManager = memberGuild.getAudioManager();
-        Checks.botNotConnected(audioManager);
-
-        AudioPlayer player = MusicManager.getInstance().createPlayer(playerChannel);
-        audioManager.setSendingHandler(new LavaPlayerJdaWrapper(player));
-        audioManager.openAudioConnection(audioChannel);
-    }
-
-    protected static void joinIfNotConnected(Member memberToJoin, GuildMessageChannel playerChannel)
-            throws CommandFailedException {
-        AudioChannel audioChannel = Checks.authorInVoice(memberToJoin);
-        try {
-            joinVoiceOfMember(memberToJoin, playerChannel);
-        } catch (CommandFailedException cfe) {
-            Checks.botConnectedToAuthorVoice(audioChannel);
-            audioChannel.getGuild().getAudioManager();
-        }
     }
 
     /**
