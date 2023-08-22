@@ -1,7 +1,7 @@
 package org.smileyface.components.buttons;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.smileyface.modals.ModalManager;
 
 /**
@@ -9,7 +9,7 @@ import org.smileyface.modals.ModalManager;
  */
 public class QueueButton extends CommandButton {
     public QueueButton() {
-        super(Button.primary("testButton", "Queue more"));
+        super(ButtonStyle.SECONDARY, "testButton", "Queue more");
     }
 
     @Override
@@ -17,6 +17,6 @@ public class QueueButton extends CommandButton {
         event.replyModal(ModalManager
                 .getInstance()
                 .getItem("queueSong")
-                .getModal()).queue();
+        ).queue();
     }
 }

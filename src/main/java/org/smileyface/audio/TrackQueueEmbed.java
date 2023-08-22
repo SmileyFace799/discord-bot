@@ -74,7 +74,7 @@ public class TrackQueueEmbed {
                 .sendMessageEmbeds(buildEmbed())
                 .addActionRow(ComponentManager
                         .getInstance()
-                        .getItem("testButton").getComponent())
+                        .getItem("testButton"))
                 .complete();
     }
 

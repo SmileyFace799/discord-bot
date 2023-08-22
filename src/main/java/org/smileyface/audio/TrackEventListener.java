@@ -51,6 +51,7 @@ public class TrackEventListener extends AudioEventAdapter {
         if (!startedMusicTrack.getAudio().equals(track)) {
             throw new IllegalStateException("queue.currentlyPlaying isn't the track just started");
         }
+        queue.getTrackQueueEmbed().updateEmbed();
     }
 
     @Override

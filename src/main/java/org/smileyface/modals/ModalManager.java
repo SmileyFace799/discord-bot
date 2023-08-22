@@ -12,7 +12,7 @@ public class ModalManager extends GenericManager<CommandModal> {
     private ModalManager() {
         super(Stream.of(
                 new QueueSongModal()
-        ), commandModal -> commandModal.getModal().getId());
+        ), CommandModal::getId);
     }
 
     /**

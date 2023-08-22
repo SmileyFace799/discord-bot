@@ -78,7 +78,7 @@ public class TrackQueue {
      */
     public synchronized void playNext() {
         currentlyPlaying = queue.remove(0);
-        trackQueueEmbed.updateEmbed();
+        player.playTrack(currentlyPlaying.getAudio());
     }
 
     /**
