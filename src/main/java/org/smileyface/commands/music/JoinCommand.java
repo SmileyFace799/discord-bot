@@ -66,7 +66,7 @@ public class JoinCommand extends BotCommand {
     protected static void joinIfNotConnected(Member memberToJoin, GuildMessageChannel playerChannel)
             throws CommandFailedException {
         try {
-            Checks.botConnectedToAuthorVoice(Checks.authorInVoice(memberToJoin));
+            Checks.botConnectedToMemberVoice(memberToJoin);
         } catch (CommandFailedException cfe) {
             joinVoiceOfMember(memberToJoin, playerChannel);
         }

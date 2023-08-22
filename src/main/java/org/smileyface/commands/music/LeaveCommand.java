@@ -3,7 +3,6 @@ package org.smileyface.commands.music;
 import java.util.Objects;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.audio.MusicManager;
@@ -29,8 +28,7 @@ public class LeaveCommand extends BotCommand {
     @Override
     public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
         Member author = Objects.requireNonNull(event.getMember());
-        AudioChannel audioChannel = Checks.authorInVoice(author);
-        Checks.botConnectedToAuthorVoice(audioChannel);
+        Checks.botConnectedToMemberVoice(author);
 
         TrackQueue queue = MusicManager.getInstance().getQueue(author.getGuild().getIdLong());
         Music.leaveVoiceIfConnected(author.getGuild());

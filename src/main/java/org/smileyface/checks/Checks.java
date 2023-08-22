@@ -48,14 +48,15 @@ public class Checks {
     }
 
     /**
-     * Checks if the bot is connected to the same voice channel as the author.
+     * Checks if the bot is connected to the same voice channel as the member.
      *
-     * @param audioChannel The voice channel the author is connected to
+     * @param member The member to check if connected to
      * @throws CommandFailedException If the bot is not connected to the
-     *                              same voice channel as the author
+     *                              same voice channel as the member
      */
-    public static void botConnectedToAuthorVoice(AudioChannel audioChannel)
+    public static void botConnectedToMemberVoice(Member member)
             throws CommandFailedException {
+        AudioChannel audioChannel = authorInVoice(member);
         if (!audioChannel.equals(audioChannel.getGuild().getAudioManager().getConnectedChannel())) {
             throw new CommandFailedException(
                     "The bot is not connected to the voice channel you're in");

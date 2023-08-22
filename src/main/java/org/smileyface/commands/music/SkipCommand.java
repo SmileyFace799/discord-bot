@@ -32,7 +32,7 @@ public class SkipCommand extends BotCommand {
     @Override
     public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
         Member author = Objects.requireNonNull(event.getMember());
-        Checks.botConnectedToAuthorVoice(Checks.authorInVoice(author));
+        Checks.botConnectedToMemberVoice(author);
 
 
         Guild guild = author.getGuild();

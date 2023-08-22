@@ -25,11 +25,7 @@ public class ShowPlayerCommand extends BotCommand {
 
     @Override
     public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
-        Checks.botConnectedToAuthorVoice(
-                Checks.authorInVoice(
-                        Objects.requireNonNull(event.getMember())
-                )
-        );
+        Checks.botConnectedToMemberVoice(Objects.requireNonNull(event.getMember()));
         MusicManager
                 .getInstance()
                 .getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
