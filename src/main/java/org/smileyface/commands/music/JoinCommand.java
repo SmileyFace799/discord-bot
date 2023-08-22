@@ -48,6 +48,11 @@ public class JoinCommand extends BotCommand {
         AudioPlayer player = MusicManager.getInstance().createPlayer(playerChannel);
         audioManager.setSendingHandler(new LavaPlayerJdaWrapper(player));
         audioManager.openAudioConnection(audioChannel);
+        MusicManager
+                .getInstance()
+                .getQueue(memberGuild.getIdLong())
+                .getTrackQueueEmbed()
+                .setLastCommand(memberToJoin, "Made the bot join a voice channel");
     }
 
     /**
@@ -69,13 +74,7 @@ public class JoinCommand extends BotCommand {
 
     @Override
     public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
-        Member author = Objects.requireNonNull(event.getMember());
-        joinVoiceOfMember(author, event.getGuildChannel());
-        MusicManager
-                .getInstance()
-                .getQueue(author.getGuild().getIdLong())
-                .getTrackQueueEmbed()
-                .setLastCommand(author, "Made the bot join a voice channel");
+        joinVoiceOfMember(Objects.requireNonNull(event.getMember()), event.getGuildChannel());
         event.reply("Joined channel!").setEphemeral(true).queue();
     }
 }
