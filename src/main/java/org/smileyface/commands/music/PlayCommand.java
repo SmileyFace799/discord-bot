@@ -9,15 +9,17 @@ import java.util.Set;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.apache.hc.core5.http.ParseException;
 import org.smileyface.audio.MusicManager;
-import org.smileyface.checks.CommandFailedException;
+import org.smileyface.checks.Checks;
+import org.smileyface.checks.ChecksFailedException;
 import org.smileyface.commands.BotCommand;
 import org.smileyface.commands.SpotifyManager;
+import org.smileyface.misc.MultiTypeMap;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
@@ -40,10 +42,10 @@ public class PlayCommand extends BotCommand {
         super(Commands
                         .slash("play", "Plays a song")
                         .setGuildOnly(true)
-                        .addOption(OptionType.STRING, "input",
+                        .addOption(OptionType.STRING, ArgKeys.INPUT,
                                 "A search or URL for the song to play. "
                                         + "Search is done through YouTube", true)
-                        .addOption(OptionType.BOOLEAN, "songsearch",
+                        .addOption(OptionType.BOOLEAN, ArgKeys.SONG_SEARCH.toLowerCase(),
                                 "If the YouTube search should search for songs only. "
                                         + "Ignored if input is a URL  (Default: False)"),
                 Set.of("p")
@@ -140,13 +142,12 @@ public class PlayCommand extends BotCommand {
         return links;
     }
 
-    private static List<String> spotifyToYouTubeSearch(String spotifyLink)
-            throws CommandFailedException {
+    private static List<String> spotifyToYouTubeSearch(String spotifyLink) {
         List<String> links = new ArrayList<>();
         try {
             SpotifyApi api = SpotifyManager.getInstance().getApi();
             if (api == null) {
-                throw new CommandFailedException("Spotify is not supported");
+                throw new IllegalStateException("Spotify is not supported");
             }
             if (spotifyLink.contains("track/")) {
                 links.add(getSpotifyTrackSearch(api, spotifyLink));
@@ -156,13 +157,13 @@ public class PlayCommand extends BotCommand {
                 links.addAll(getSpotifyPlaylistSearches(api, spotifyLink));
             }
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-            throw new CommandFailedException("Spotify error: "
+            throw new IllegalStateException("Spotify error: "
                     + e.getMessage());
         }
         return links;
     }
 
-    private static List<String> getIdentifiers(String[] links) throws CommandFailedException {
+    private static List<String> getIdentifiers(String[] links) {
         List<String> identifiers = new ArrayList<>();
         for (String link : links) {
             if (
@@ -182,58 +183,71 @@ public class PlayCommand extends BotCommand {
         return identifiers;
     }
 
-    /**
-     * executes the command, with all the required information.
-     *
-     * @param author           The user that executed the play command.
-     * @param newPlayerChannel The voice channel to join if the bot is not connected.
-     * @param input            The input to use when finding the audio to play
-     * @param songSearch       If the input is a song search
-     * @param hook             The {@link InteractionHook} to use when
-     *                         responding to the executed command
-     * @throws CommandFailedException If the command fails
-     */
-    public static void playTrack(
-            Member author,
-            GuildMessageChannel newPlayerChannel,
-            String input,
-            boolean songSearch,
-            InteractionHook hook
-    ) throws CommandFailedException {
-        JoinCommand.joinIfNotConnected(author, newPlayerChannel);
-
-        List<String> identifiers = new ArrayList<>();
-
-        String[] splitInput = input.replace("  ", " ").split(" ");
-        if (Arrays.stream(splitInput).allMatch(identifier ->
-                identifier.startsWith("https://") || identifier.startsWith("http://"))
-        ) {
-            identifiers.addAll(getIdentifiers(splitInput));
-        } else {
-            String search = YOUTUBE_SEARCH + input;
-
-            if (songSearch) {
-                search += YOUTUBE_SONG_FILTER;
-            }
-            identifiers.add(search);
-        }
-        if (identifiers.size() == 1) {
-            MusicManager.getInstance().queue(identifiers.get(0), author, hook);
-        } else {
-            MusicManager.getInstance().queueMultiple(identifiers, author, hook);
-        }
+    @Override
+    protected void runChecks(IReplyCallback event) throws ChecksFailedException {
+        Checks.authorInGuild(event);
+        Checks.authorInVoice(event);
     }
 
     @Override
-    public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
+    public MultiTypeMap<String> getArgs(SlashCommandInteractionEvent event) {
+        MultiTypeMap<String> args = new MultiTypeMap<>();
+        args.put(ArgKeys.INPUT, event.getOption(ArgKeys.INPUT, OptionMapping::getAsString));
+        args.put(ArgKeys.SONG_SEARCH, event.getOption(
+                ArgKeys.SONG_SEARCH.toLowerCase(),
+                false, OptionMapping::getAsBoolean
+        ));
+        return args;
+    }
+
+    @Override
+    protected void execute(IReplyCallback event, MultiTypeMap<String> args) {
         event.deferReply().setEphemeral(true).queue();
-        OptionMapping songSearchOption = event.getOption("songsearch");
-        playTrack(
-                Objects.requireNonNull(event.getMember()),
-                Objects.requireNonNull(event.getGuildChannel()),
-                Objects.requireNonNull(event.getOption("input")).getAsString(),
-                songSearchOption != null && songSearchOption.getAsBoolean(),
-                event.getHook()
-        );
+        Member author = Objects.requireNonNull(event.getMember());
+        String input = args.get(ArgKeys.INPUT, String.class);
+        boolean songSearch = args.get(ArgKeys.SONG_SEARCH, Boolean.class);
+        List<String> identifiers = new ArrayList<>();
+
+        String[] splitInput = input.replace("  ", " ").split(" ");
+        try {
+            if (Arrays.stream(splitInput).allMatch(identifier ->
+                    identifier.startsWith("https://") || identifier.startsWith("http://"))
+            ) {
+                identifiers.addAll(getIdentifiers(splitInput));
+            } else {
+                String search = YOUTUBE_SEARCH + input;
+
+                if (songSearch) {
+                    search += YOUTUBE_SONG_FILTER;
+                }
+                identifiers.add(search);
+            }
+
+            JoinCommand.joinSilently(
+                    Objects.requireNonNull(
+                            Objects.requireNonNull(author.getVoiceState()).getChannel()
+                    ),
+                    (GuildMessageChannel) event.getMessageChannel()
+            );
+            if (identifiers.size() == 1) {
+                MusicManager.getInstance().queue(identifiers.get(0), author, event.getHook());
+            } else {
+                MusicManager.getInstance().queueMultiple(identifiers, author, event.getHook());
+            }
+        } catch (IllegalStateException ise) {
+            event.reply(ise.getMessage()).queue();
+        }
+    }
+
+    /**
+     * Keys for args map.
+     */
+    public static class ArgKeys {
+        public static final String INPUT = "input";
+        public static final String SONG_SEARCH = "songSearch";
+
+        private ArgKeys() {
+            throw new IllegalStateException("Utility class");
+        }
     }
 }

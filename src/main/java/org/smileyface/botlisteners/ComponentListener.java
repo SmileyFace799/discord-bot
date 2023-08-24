@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.smileyface.checks.CommandFailedException;
 import org.smileyface.components.ComponentManager;
 import org.smileyface.components.buttons.CommandButton;
 import org.smileyface.modals.ModalManager;
@@ -29,17 +28,8 @@ public class ComponentListener extends ListenerAdapter {
 
     @Override
     public void onModalInteraction(ModalInteractionEvent event) {
-        try {
-            ModalManager
-                    .getInstance()
-                    .getItem(event.getModalId())
-                    .submitted(event);
-        } catch (CommandFailedException cfe) {
-            if (event.isAcknowledged()) {
-                event.getHook().sendMessage(cfe.getMessage()).queue();
-            } else {
-                event.reply(cfe.getMessage()).setEphemeral(true).queue();
-            }
-        }
+        ModalManager.getInstance()
+                .getItem(event.getModalId())
+                .submitted(event);
     }
 }

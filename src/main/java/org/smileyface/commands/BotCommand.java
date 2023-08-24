@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.smileyface.checks.CommandFailedException;
+import org.smileyface.checks.ChecksFailedException;
+import org.smileyface.misc.MultiTypeMap;
 
 /**
  * Represents a basic bot command. All bot commands are slash commands.
@@ -60,9 +62,18 @@ public abstract class BotCommand {
                     .setNSFW(commandData.isNSFW())
             ) {
                 @Override
-                public void run(SlashCommandInteractionEvent event)
-                        throws CommandFailedException {
-                    BotCommand.this.run(event);
+                public MultiTypeMap<String> getArgs(SlashCommandInteractionEvent event) {
+                    return BotCommand.this.getArgs(event);
+                }
+
+                @Override
+                protected void runChecks(IReplyCallback event) throws ChecksFailedException {
+                    BotCommand.this.runChecks(event);
+                }
+
+                @Override
+                protected void execute(IReplyCallback event, MultiTypeMap<String> args) {
+                    BotCommand.this.execute(event, args);
                 }
             });
         }
@@ -70,10 +81,66 @@ public abstract class BotCommand {
     }
 
     /**
-     * The code to execute when the command is ran.
+     * Commands can override this to organize slash command options into a map.
+     * <p>
+     * This map can be passed alongside the event to {@link #execute(IReplyCallback, MultiTypeMap)},
+     * which can otherwise not access slash command arguments,
+     * due to maintaining compatibility with buttons & modals.
+     * </p><p>
+     * This returns an empty map by default.
+     * </p>
      *
-     * @param event The command event containing contextual information on the executed command.
-     * @throws CommandFailedException If the command is ran in an invalid context.
+     * @param event The command event containing contextual information on the executed command
+     * @return Slash command arguments, organized into a map.
+     *         There is no guarantee that this map is modifiable
      */
-    public abstract void run(SlashCommandInteractionEvent event) throws CommandFailedException;
+    public MultiTypeMap<String> getArgs(SlashCommandInteractionEvent event) {
+        return new MultiTypeMap<>();
+    }
+
+    /**
+     * Checks if the command can be executed in the context it was invoked in.
+     * If calling this method does not throw an exception, the command can be invoked safely.
+     *
+     * @param event The {@link IReplyCallback} containing the command's invocation context
+     * @throws ChecksFailedException If the command cannot be executed in the invoked context
+     */
+    protected void runChecks(IReplyCallback event) throws ChecksFailedException {
+        //Does nothing by default
+    }
+
+    /**
+     * The code to execute when the command is run.
+     *
+     * @param event The command event containing contextual information on the executed command
+     */
+    protected abstract void execute(IReplyCallback event, MultiTypeMap<String> args);
+
+    /**
+     * Runs the command.
+     * <p>
+     *     Running the command consists of 2 steps: Checking & Executing.
+     *     Checking checks if the command can be executed in the invoked context,
+     *     and Executing executes the command if the checking process did not yield any exceptions.
+     * </p>
+     *
+     * @param event The {@link IReplyCallback} containing the command's invocation context
+     * @param args Any additional arguments passed by the user in the invocation process
+     */
+    public void run(IReplyCallback event, MultiTypeMap<String> args) {
+        try {
+            runChecks(event);
+            execute(event, args);
+        } catch (ChecksFailedException cfe) {
+            if (event.isAcknowledged()) {
+                event.getHook().sendMessage(cfe.getMessage()).queue();
+            } else {
+                event.reply(cfe.getMessage()).setEphemeral(true).queue();
+            }
+        }
+    }
+
+    public void run(IReplyCallback event) {
+        run(event, new MultiTypeMap<>());
+    }
 }

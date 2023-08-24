@@ -1,9 +1,10 @@
 package org.smileyface.commands.misc;
 
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
 import org.smileyface.commands.SpotifyManager;
+import org.smileyface.misc.MultiTypeMap;
 
 /**
  * Shows the available features of the bot.
@@ -19,7 +20,7 @@ public class FeaturesCommand extends BotCommand {
     }
 
     @Override
-    public void run(SlashCommandInteractionEvent event) {
+    protected void execute(IReplyCallback event, MultiTypeMap<String> args) {
 
         String msg = "All optional features for this bot:" + "\n - Can play Spotify links? "
                 + boolToString(SpotifyManager.getInstance().getApi() != null)

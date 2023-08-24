@@ -2,18 +2,19 @@ package org.smileyface.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import java.util.Objects;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.smileyface.audio.LavaPlayerJdaWrapper;
 import org.smileyface.audio.MusicManager;
+import org.smileyface.audio.TrackQueue;
 import org.smileyface.checks.Checks;
-import org.smileyface.checks.CommandFailedException;
+import org.smileyface.checks.ChecksFailedException;
 import org.smileyface.commands.BotCommand;
+import org.smileyface.misc.MultiTypeMap;
 
 /**
  * Makes the bot join the user's current voice channel.
@@ -31,50 +32,44 @@ public class JoinCommand extends BotCommand {
     }
 
     /**
-     * Joins a member's voice channel.
+     * Join the author's voice channel, if possible.
      *
-     * @param memberToJoin  The member to join
-     * @param playerChannel The channel to make the music embed in
-     * @throws CommandFailedException If the author is not connected to voice,
-     *                                or if the bot is already connected somewhere
+     * @return The track queue associated with the newly made voice connection.
+     *         This will be {@code null} if the bot didn't actually join voice
      */
-    protected static void joinVoiceOfMember(Member memberToJoin, GuildMessageChannel playerChannel)
-            throws CommandFailedException {
-        AudioChannel audioChannel = Checks.authorInVoice(memberToJoin);
-        Guild memberGuild = memberToJoin.getGuild();
-        AudioManager audioManager = memberGuild.getAudioManager();
-        Checks.botNotConnected(audioManager);
-
-        AudioPlayer player = MusicManager.getInstance().createPlayer(playerChannel);
-        audioManager.setSendingHandler(new LavaPlayerJdaWrapper(player));
-        audioManager.openAudioConnection(audioChannel);
-        MusicManager
-                .getInstance()
-                .getQueue(memberGuild.getIdLong())
-                .getTrackQueueEmbed()
-                .setLastCommand(memberToJoin, "Made the bot join a voice channel");
-    }
-
-    /**
-     * Joins a member's voice channel, if not already connected.
-     *
-     * @param memberToJoin  The member to join
-     * @param playerChannel The channel to make the music embed int
-     * @throws CommandFailedException If the author is not connected to voice,
-     *                                or if the bot is already in a different voice channel
-     */
-    protected static void joinIfNotConnected(Member memberToJoin, GuildMessageChannel playerChannel)
-            throws CommandFailedException {
-        try {
-            Checks.botConnectedToMemberVoice(memberToJoin);
-        } catch (CommandFailedException cfe) {
-            joinVoiceOfMember(memberToJoin, playerChannel);
+    protected static TrackQueue joinSilently(
+            AudioChannel audioChannel, GuildMessageChannel playerChannel
+    ) {
+        AudioManager audioManager = audioChannel.getGuild().getAudioManager();
+        TrackQueue queue = null;
+        if (!audioManager.isConnected()) {
+            AudioPlayer player = MusicManager.getInstance().createPlayer(playerChannel);
+            audioManager.setSendingHandler(new LavaPlayerJdaWrapper(player));
+            audioManager.openAudioConnection(audioChannel);
+            queue = MusicManager.getInstance().getQueue(player);
         }
+        return queue;
     }
 
     @Override
-    public void run(SlashCommandInteractionEvent event) throws CommandFailedException {
-        joinVoiceOfMember(Objects.requireNonNull(event.getMember()), event.getGuildChannel());
+    protected void runChecks(IReplyCallback event) throws ChecksFailedException {
+        Checks.authorInVoice(event);
+        Checks.botNotConnected(event);
+    }
+
+    @Override
+    protected void execute(IReplyCallback event, MultiTypeMap<String> args) {
+        Member member = Objects.requireNonNull(event.getMember());
+        TrackQueue queue = joinSilently(
+                Objects.requireNonNull(
+                        Objects.requireNonNull(member.getVoiceState()).getChannel()
+                ),
+                (GuildMessageChannel) event.getMessageChannel()
+        );
+        if (queue != null) {
+            queue.getTrackQueueEmbed()
+                    .setLastCommand(member, "Joined the voice channel");
+        }
         event.reply("Joined channel!").setEphemeral(true).queue();
     }
 }

@@ -10,18 +10,16 @@ import org.smileyface.commands.BotCommand;
 import org.smileyface.misc.MultiTypeMap;
 
 /**
- * Shows the music player in a new message.
+ * Resumes music when music is paused.
  */
-public class ShowPlayerCommand extends BotCommand {
-
+public class ResumeCommand extends BotCommand {
     /**
-     * Makes the show player command.
+     * Makes the resume command.
      */
-    public ShowPlayerCommand() {
+    public ResumeCommand() {
         super(Commands
-                .slash("showplayer", "Shows the audio player")
-                .setGuildOnly(true)
-        );
+                .slash("resume", "Resumes music when paused")
+                .setGuildOnly(true));
     }
 
     @Override
@@ -31,11 +29,10 @@ public class ShowPlayerCommand extends BotCommand {
 
     @Override
     protected void execute(IReplyCallback event, MultiTypeMap<String> args) {
-        MusicManager
-                .getInstance()
+        MusicManager.getInstance()
                 .getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
-                .getTrackQueueEmbed()
-                .showPlayer();
-        event.reply("Player shown!").setEphemeral(true).queue();
+                .getPlayer()
+                .setPaused(false);
+        event.reply("Music resumed!").setEphemeral(true).queue();
     }
 }

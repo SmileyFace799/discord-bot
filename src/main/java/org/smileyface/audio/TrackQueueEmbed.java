@@ -1,5 +1,6 @@
 package org.smileyface.audio;
 
+import java.util.Collections;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -14,10 +15,17 @@ public class TrackQueueEmbed {
     private Message playerMessage;
     private String lastCommand;
     private boolean musicEnded;
+    private boolean musicPaused;
 
+    /**
+     * Makes the embed class.
+     *
+     * @param queue The queue to make an embed for
+     */
     public TrackQueueEmbed(TrackQueue queue) {
         this.queue = queue;
         this.musicEnded = false;
+        this.musicPaused = false;
     }
 
     /**
@@ -33,9 +41,16 @@ public class TrackQueueEmbed {
         } else if (current == null) {
             embedBuilder.setColor(0xFFFF00).setTitle("Ready to play music...");
         } else {
+            if (musicPaused) {
+                embedBuilder
+                        .setColor(0xFFFF00)
+                        .setTitle("PAUSED");
+            } else {
+                embedBuilder
+                        .setColor(0x00FF00)
+                        .setTitle("PLAYING MUSIC");
+            }
             embedBuilder
-                    .setColor(0x00FF00)
-                    .setTitle("PLAYING MUSIC")
                     .setDescription("**NOW PLAYING:**")
                     .addField("Title:", current.getTitle(), false)
                     .addField("Uploaded by:", current.getAuthor(), false)
@@ -57,7 +72,7 @@ public class TrackQueueEmbed {
         } else {
             playerMessage.editMessageEmbeds(buildEmbed()).queue();
             if (musicEnded) {
-                playerMessage.getComponents().clear();
+                playerMessage.editMessageComponents(Collections.emptyList()).queue();
             }
         }
     }
@@ -73,8 +88,10 @@ public class TrackQueueEmbed {
         playerMessage = queue
                 .getPlayerChannel()
                 .sendMessageEmbeds(buildEmbed())
-                .addActionRow(componentManager.getItem("queueButton"))
-                .complete();
+                .addActionRow(
+                        componentManager.getItem("queueButton"),
+                        componentManager.getItem("playPauseButton")
+                ).complete();
     }
 
     /**
@@ -93,6 +110,11 @@ public class TrackQueueEmbed {
      */
     public void playerClosed() {
         this.musicEnded = true;
+        updateEmbed();
+    }
+
+    public void togglePaused() {
+        musicPaused = !musicPaused;
         updateEmbed();
     }
 }

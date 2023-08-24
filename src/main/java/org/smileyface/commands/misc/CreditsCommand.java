@@ -2,9 +2,10 @@ package org.smileyface.commands.misc;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
+import org.smileyface.misc.MultiTypeMap;
 
 //DO NOT REMOVE THIS COMMAND
 /**
@@ -16,7 +17,7 @@ public class CreditsCommand extends BotCommand {
     }
 
     @Override
-    public void run(SlashCommandInteractionEvent event) {
+    protected void execute(IReplyCallback event, MultiTypeMap<String> args) {
         JDA jda = event.getJDA();
         User smiley = jda.retrieveUserById(234724168183054336L).complete();
 

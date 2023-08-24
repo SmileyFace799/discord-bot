@@ -1,8 +1,9 @@
 package org.smileyface.commands.feedback;
 
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
+import org.smileyface.misc.MultiTypeMap;
 
 /**
  * Shows known issues with the bot.
@@ -14,7 +15,7 @@ public class KnownIssuesCommand extends BotCommand {
     }
 
     @Override
-    public void run(SlashCommandInteractionEvent event) {
+    public void execute(IReplyCallback event, MultiTypeMap<String> args) {
         event.reply("""
                 These are all the known issues with the bot that will not be fixed.
                 Please do not report any of these issues, I cannot fix them.

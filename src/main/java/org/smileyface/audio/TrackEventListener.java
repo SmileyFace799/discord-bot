@@ -4,7 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import org.smileyface.commands.music.Music;
+import org.smileyface.commands.music.LeaveCommand;
 
 /**
  * Schedules tracks for audio players.
@@ -26,22 +26,18 @@ public class TrackEventListener extends AudioEventAdapter {
 
     @Override
     public void onPlayerPause(AudioPlayer player) {
-        MusicManager
-                .getInstance()
+        MusicManager.getInstance()
                 .getQueue(player)
-                .getPlayerChannel()
-                .sendMessage("> Music paused")
-                .queue();
+                .getTrackQueueEmbed()
+                .togglePaused();
     }
 
     @Override
     public void onPlayerResume(AudioPlayer player) {
-        MusicManager
-                .getInstance()
+        MusicManager.getInstance()
                 .getQueue(player)
-                .getPlayerChannel()
-                .sendMessage("> Music resumed")
-                .queue();
+                .getTrackQueueEmbed()
+                .togglePaused();
     }
 
     @Override
@@ -64,7 +60,7 @@ public class TrackEventListener extends AudioEventAdapter {
             if (queue.hasNext()) {
                 queue.playNext();
             } else {
-                Music.leaveVoiceIfConnected(queue.getPlayerChannel().getGuild());
+                LeaveCommand.leaveSilently(queue.getPlayerChannel().getGuild());
             }
         }
     }

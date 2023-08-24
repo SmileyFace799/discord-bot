@@ -5,15 +5,16 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.smileyface.commands.BotCommand;
+import org.smileyface.misc.MultiTypeMap;
 
 /**
  * Reports an issue with the bot to "me" (bot author).
@@ -29,9 +30,9 @@ public class ReportIssueCommand extends BotCommand {
     public ReportIssueCommand() {
         super(Commands.slash("reportissue", "Report an issue with the bot. "
                         + "NB: Make sure to check /knownissues first")
-                .addOption(OptionType.STRING, "topic", "The topic of your issue",
+                .addOption(OptionType.STRING, ArgKeys.TOPIC, "The topic of your issue",
                         true)
-                .addOption(OptionType.STRING, "details",
+                .addOption(OptionType.STRING, ArgKeys.DETAILS,
                         "The full details of your issue, "
                                 + "including instructions on how to reproduce it", true)
         );
@@ -39,11 +40,19 @@ public class ReportIssueCommand extends BotCommand {
     }
 
     @Override
-    public void run(SlashCommandInteractionEvent event) {
-        OptionMapping topicOption = Objects.requireNonNull(event.getOption("topic"));
-        OptionMapping detailsOption = Objects.requireNonNull(event.getOption("details"));
-        String topic = topicOption.getAsString();
-        String details = detailsOption.getAsString();
+    public MultiTypeMap<String> getArgs(SlashCommandInteractionEvent event) {
+        MultiTypeMap<String> args = new MultiTypeMap<>();
+        args.put(ArgKeys.CMD_NAME, event.getName());
+        args.put(ArgKeys.TOPIC, event.getOption(ArgKeys.TOPIC, OptionMapping::getAsString));
+        args.put(ArgKeys.DETAILS, event.getOption(ArgKeys.DETAILS, OptionMapping::getAsString));
+        return args;
+    }
+
+    @Override
+    protected void execute(IReplyCallback event, MultiTypeMap<String> args) {
+        String cmdName = args.get(ArgKeys.CMD_NAME, String.class);
+        String topic = args.get(ArgKeys.TOPIC, String.class);
+        String details = args.get(ArgKeys.DETAILS, String.class);
 
         JDA jda = event.getJDA();
         User author = event.getUser();
@@ -61,18 +70,16 @@ public class ReportIssueCommand extends BotCommand {
                     + "If you do not share a server with my bot, "
                     + "message the host of this bot about this issue instead."
                     + "\n\nIf you need your command again, here it is:\n/"
-                    + event.getName() + " " + topicOption.getName() + ":" + topic
-                    + " " + detailsOption.getName() + ":" + details
+                    + cmdName + " topic:" + topic + " details:" + details
             ).setEphemeral(true).queue();
         } else if (userReportCoolDown != null && now.isBefore(userReportCoolDown)) {
             long waitDuration = Duration.between(now, userReportCoolDown).getSeconds();
             event.reply("You already sent a report within the last hour. "
-                    + "To prevent spam & misuse of this command please wait "
+                    + "To prevent spam & misuse of this command, please wait "
                     + Math.floorDiv(waitDuration, 60) + "m" + (waitDuration % 60)
                     + "s before reporting again."
                     + "\n\nIf you need your command again, here it is:\n/"
-                    + event.getName() + " " + topicOption.getName() + ":" + topic
-                    + " " + detailsOption.getName() + ":" + details
+                    + cmdName + " topic:" + topic + " details:" + details
             ).setEphemeral(true).queue();
         } else {
             User me = jda.retrieveUserById(234724168183054336L).complete();
@@ -84,10 +91,23 @@ public class ReportIssueCommand extends BotCommand {
             ).queue();
             event.reply("Issue has been reported. I may reach out to you for "
                     + "further details about this issue. If you don't have open DMs, "
-                    + "I'll send you a friend request (I'm "
+                    + "I may send you a friend request (I'm "
                     + me.getName() + ")"
             ).setEphemeral(true).queue();
             reportCoolDowns.put(author.getIdLong(), now.plusHours(1));
+        }
+    }
+
+    /**
+     * Keys for args map.
+     */
+    public static class ArgKeys {
+        public static final String CMD_NAME = "cmdName";
+        public static final String TOPIC = "topic";
+        public static final String DETAILS = "details";
+
+        private ArgKeys() {
+            throw new IllegalStateException("Utility class");
         }
     }
 }
