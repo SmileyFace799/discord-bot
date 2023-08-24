@@ -18,5 +18,5 @@ public abstract class CommandButton extends ButtonImpl {
         super(id, text, style, false, emoji);
     }
 
-    public abstract void clicked(ButtonInteractionEvent events);
+    public abstract void clicked(ButtonInteractionEvent event);
 }

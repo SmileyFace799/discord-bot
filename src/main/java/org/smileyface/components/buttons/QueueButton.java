@@ -16,7 +16,7 @@ public class QueueButton extends CommandButton {
     public void clicked(ButtonInteractionEvent event) {
         event.replyModal(ModalManager
                 .getInstance()
-                .getItem("queueSong")
+                .getItem("queueSongModal")
         ).queue();
     }
 }

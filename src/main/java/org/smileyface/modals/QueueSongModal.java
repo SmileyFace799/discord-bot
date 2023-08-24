@@ -15,12 +15,11 @@ import org.smileyface.misc.MultiTypeMap;
  * Shown when {@link org.smileyface.components.buttons.QueueButton QueueButton} is clicked.
  */
 public class QueueSongModal extends CommandModal {
-
     /**
-     * Makes the queue song modal.
+     * Makes the modal.
      */
     public QueueSongModal() {
-        super("queueSong", "Queue a song / video / playlist", List.of(
+        super("queueSongModal", "Queue a song / video / playlist", List.of(
                 TextInput.create(
                         PlayCommand.ArgKeys.INPUT,
                         "URL / YouTube search query",
@@ -41,10 +40,10 @@ public class QueueSongModal extends CommandModal {
         ModalMapping songSearch = event.getValue(PlayCommand.ArgKeys.SONG_SEARCH);
 
         MultiTypeMap<String> args = new MultiTypeMap<>();
-        args.put(PlayCommand.ArgKeys.SONG_SEARCH, Objects.requireNonNull(
+        args.put(PlayCommand.ArgKeys.INPUT, Objects.requireNonNull(
                 event.getValue(PlayCommand.ArgKeys.INPUT)
         ).getAsString());
-        args.put(PlayCommand.ArgKeys.INPUT, songSearch != null
+        args.put(PlayCommand.ArgKeys.SONG_SEARCH, songSearch != null
                 && Stream.of("y", "yes", "true")
                 .anyMatch(yes -> yes.equalsIgnoreCase(songSearch.getAsString()))
         );

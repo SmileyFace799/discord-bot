@@ -12,7 +12,7 @@ public class TrackQueue {
     private final AudioPlayer player;
     private final List<MusicTrack> queue;
     private final GuildMessageChannel playerChannel;
-    private final TrackQueueEmbed trackQueueEmbed;
+    private final TrackQueueMessage trackQueueMessage;
     private MusicTrack currentlyPlaying = null;
 
     /**
@@ -25,7 +25,7 @@ public class TrackQueue {
         this.player = player;
         this.queue = new LinkedList<>();
         this.playerChannel = playerChannel;
-        this.trackQueueEmbed = new TrackQueueEmbed(this);
+        this.trackQueueMessage = new TrackQueueMessage(this);
     }
 
     public AudioPlayer getPlayer() {
@@ -40,8 +40,8 @@ public class TrackQueue {
         return playerChannel;
     }
 
-    public TrackQueueEmbed getTrackQueueEmbed() {
-        return trackQueueEmbed;
+    public TrackQueueMessage getTrackQueueMessage() {
+        return trackQueueMessage;
     }
 
     public MusicTrack getCurrentlyPlaying() {
@@ -98,6 +98,6 @@ public class TrackQueue {
      */
     public void stop() {
         player.destroy();
-        trackQueueEmbed.playerClosed();
+        trackQueueMessage.playerClosed();
     }
 }

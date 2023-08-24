@@ -28,7 +28,7 @@ public class TrackEventListener extends AudioEventAdapter {
     public void onPlayerPause(AudioPlayer player) {
         MusicManager.getInstance()
                 .getQueue(player)
-                .getTrackQueueEmbed()
+                .getTrackQueueMessage()
                 .togglePaused();
     }
 
@@ -36,7 +36,7 @@ public class TrackEventListener extends AudioEventAdapter {
     public void onPlayerResume(AudioPlayer player) {
         MusicManager.getInstance()
                 .getQueue(player)
-                .getTrackQueueEmbed()
+                .getTrackQueueMessage()
                 .togglePaused();
     }
 
@@ -47,7 +47,7 @@ public class TrackEventListener extends AudioEventAdapter {
         if (!startedMusicTrack.getAudio().equals(track)) {
             throw new IllegalStateException("queue.currentlyPlaying isn't the track just started");
         }
-        queue.getTrackQueueEmbed().updateEmbed();
+        queue.getTrackQueueMessage().updateEmbed();
     }
 
     @Override

@@ -2,8 +2,13 @@ package org.smileyface.components;
 
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
+import org.smileyface.components.buttons.GoToPageButton;
+import org.smileyface.components.buttons.NextPageButton;
 import org.smileyface.components.buttons.PlayPauseButton;
+import org.smileyface.components.buttons.PrevPageButton;
 import org.smileyface.components.buttons.QueueButton;
+import org.smileyface.components.buttons.SkipButton;
+import org.smileyface.components.buttons.StopButton;
 import org.smileyface.generics.GenericManager;
 
 /**
@@ -14,8 +19,13 @@ public class ComponentManager extends GenericManager<ActionComponent> {
 
     private ComponentManager() {
         super(Stream.of(
+                new SkipButton(),
+                new PlayPauseButton(),
                 new QueueButton(),
-                new PlayPauseButton()
+                new StopButton(),
+                new PrevPageButton(),
+                new NextPageButton(),
+                new GoToPageButton()
         ), ActionComponent::getId);
     }
 

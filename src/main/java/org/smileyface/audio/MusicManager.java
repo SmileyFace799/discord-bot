@@ -94,7 +94,7 @@ public class MusicManager {
                 queue.queue(new MusicTrack(audio, queuedBy));
                 String title = audio.getInfo().title;
                 hook.sendMessage("Song/video added to queue: " + title).queue();
-                queue.getTrackQueueEmbed()
+                queue.getTrackQueueMessage()
                         .setLastCommand(queuedBy, "Queued \"" + title + "\"");
             }
 
@@ -108,7 +108,7 @@ public class MusicManager {
                     }
                     String title = playlist.getName();
                     hook.sendMessage("Playlist added to queue: " + title).queue();
-                    queue.getTrackQueueEmbed()
+                    queue.getTrackQueueMessage()
                             .setLastCommand(queuedBy, "Queued \"" + title + "\"");
                 }
             }
@@ -177,7 +177,7 @@ public class MusicManager {
         }
         hook.sendMessage("Your songs / videos / playlists are being queued!\n"
                 + "(Note: Any not found will be skipped)").queue();
-        queue.getTrackQueueEmbed()
+        queue.getTrackQueueMessage()
                 .setLastCommand(queuedBy, "Queued multiple songs / videos / playlists");
     }
 

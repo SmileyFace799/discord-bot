@@ -59,7 +59,7 @@ public class SkipCommand extends BotCommand {
             replyMessage += "s";
         }
         event.reply(replyMessage).setEphemeral(true).queue();
-        queue.getTrackQueueEmbed().setLastCommand(author, replyMessage);
+        queue.getTrackQueueMessage().setLastCommand(author, replyMessage);
     }
 
     /**

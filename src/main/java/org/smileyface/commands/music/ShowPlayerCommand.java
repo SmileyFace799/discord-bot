@@ -34,7 +34,7 @@ public class ShowPlayerCommand extends BotCommand {
         MusicManager
                 .getInstance()
                 .getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
-                .getTrackQueueEmbed()
+                .getTrackQueueMessage()
                 .showPlayer();
         event.reply("Player shown!").setEphemeral(true).queue();
     }

@@ -67,7 +67,7 @@ public class JoinCommand extends BotCommand {
                 (GuildMessageChannel) event.getMessageChannel()
         );
         if (queue != null) {
-            queue.getTrackQueueEmbed()
+            queue.getTrackQueueMessage()
                     .setLastCommand(member, "Joined the voice channel");
         }
         event.reply("Joined channel!").setEphemeral(true).queue();

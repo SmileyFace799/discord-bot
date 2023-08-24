@@ -55,7 +55,7 @@ public class LeaveCommand extends BotCommand {
 
         TrackQueue leftQueue = leaveSilently(guild);
         if (leftQueue != null) {
-            leftQueue.getTrackQueueEmbed().setLastCommand(author, "Stopped the music, "
+            leftQueue.getTrackQueueMessage().setLastCommand(author, "Stopped the music, "
                     + "and made the bot leave voice channel");
         }
         event.reply("Left channel!").setEphemeral(true).queue();

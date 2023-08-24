@@ -11,7 +11,8 @@ public class ModalManager extends GenericManager<CommandModal> {
 
     private ModalManager() {
         super(Stream.of(
-                new QueueSongModal()
+                new QueueSongModal(),
+                new GoToPageModal()
         ), CommandModal::getId);
     }
 
