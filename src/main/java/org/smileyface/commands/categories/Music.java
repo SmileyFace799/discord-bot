@@ -6,7 +6,6 @@ import org.smileyface.commands.music.JoinCommand;
 import org.smileyface.commands.music.LeaveCommand;
 import org.smileyface.commands.music.PauseCommand;
 import org.smileyface.commands.music.PlayCommand;
-import org.smileyface.commands.music.QueueCommand;
 import org.smileyface.commands.music.RepeatCommand;
 import org.smileyface.commands.music.ResumeCommand;
 import org.smileyface.commands.music.ShowPlayerCommand;
@@ -39,7 +38,6 @@ public class Music extends Category {
                 new SkipCommand(),
                 new ResumeCommand(),
                 new PauseCommand(),
-                new QueueCommand(),
                 new ShowPlayerCommand(),
                 new RepeatCommand(),
                 new ShuffleCommand()

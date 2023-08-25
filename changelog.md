@@ -1,10 +1,18 @@
 Changelog:
 
 v1.5.0
+<br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
+- Added: Shuffle feature (/shuffle, /shf)
+- Added: Repeat fetature (/repeat, /rpt)
+- Added: Queue embed shown together with music player embed
+- Added: Music player embed buttons
+- Added: Queue embed buttons
 - Added: Component manager, to manage action component instances
 - Added: Modal manager, to manage modal instances
-- Added: Music player embed buttons
+- Modified: Updated `lavaplayer-fork` to version `1.4.3`. This fixes a crucial bug where the bot was not able to play YouTube or Spotify tracks.
 - Modified: Manager classes now have a common super class
+- Removed: /queue, obsolete
+- Removed: /q (shortcut for /queue)
 
 v1.4.1
 - Modified: Fixed a bug where the music player embed didn't update upon songs finishing
