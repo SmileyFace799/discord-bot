@@ -7,6 +7,8 @@ import org.smileyface.components.buttons.NextPageButton;
 import org.smileyface.components.buttons.PlayPauseButton;
 import org.smileyface.components.buttons.PrevPageButton;
 import org.smileyface.components.buttons.QueueButton;
+import org.smileyface.components.buttons.RepeatButton;
+import org.smileyface.components.buttons.ShuffleButton;
 import org.smileyface.components.buttons.SkipButton;
 import org.smileyface.components.buttons.StopButton;
 import org.smileyface.generics.GenericManager;
@@ -25,7 +27,9 @@ public class ComponentManager extends GenericManager<ActionComponent> {
                 new StopButton(),
                 new PrevPageButton(),
                 new NextPageButton(),
-                new GoToPageButton()
+                new GoToPageButton(),
+                new RepeatButton(),
+                new ShuffleButton()
         ), ActionComponent::getId);
     }
 

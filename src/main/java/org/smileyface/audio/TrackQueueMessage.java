@@ -78,8 +78,12 @@ public class TrackQueueMessage {
                 this.page = lastPage;
             }
             queueEmbed
-                    .setTitle("**QUEUE:**")
                     .setColor(0x7F7F7F)
+                    .setTitle("QUEUE")
+                    .setDescription(String.format("Shuffle: **%s**%nRepeat: **%s**",
+                            queue.isShuffled() ? "Yes" : "No",
+                            queue.getRepeat().getStr()
+                    ))
                     .addField(
                             String.format("Page %s of %s", page, lastPage),
                             String.join("\n",
@@ -140,6 +144,8 @@ public class TrackQueueMessage {
                 ).addActionRow(
                         componentManager.getItem("prevPageButton"),
                         componentManager.getItem("nextPageButton"),
+                        componentManager.getItem("shuffleButton"),
+                        componentManager.getItem("repeatButton"),
                         componentManager.getItem("goToPageButton")
                 ).complete();
     }

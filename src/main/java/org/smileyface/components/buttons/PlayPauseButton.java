@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.smileyface.audio.MusicManager;
 import org.smileyface.checks.Checks;
 import org.smileyface.checks.ChecksFailedException;
-import org.smileyface.commands.music.Music;
+import org.smileyface.commands.categories.Music;
 
 /**
  * Pauses / Resumes music when clicked.

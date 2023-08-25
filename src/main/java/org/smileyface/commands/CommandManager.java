@@ -3,9 +3,9 @@ package org.smileyface.commands;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.smileyface.commands.feedback.Feedback;
-import org.smileyface.commands.misc.Misc;
-import org.smileyface.commands.music.Music;
+import org.smileyface.commands.categories.Feedback;
+import org.smileyface.commands.categories.Misc;
+import org.smileyface.commands.categories.Music;
 import org.smileyface.generics.GenericManager;
 
 /**

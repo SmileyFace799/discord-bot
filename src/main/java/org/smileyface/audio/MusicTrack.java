@@ -43,4 +43,8 @@ public class MusicTrack {
     public Member getQueuedBy() {
         return queuedBy;
     }
+
+    public MusicTrack copy() {
+        return new MusicTrack(audio.makeClone(), queuedBy);
+    }
 }

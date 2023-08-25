@@ -1,7 +1,9 @@
-package org.smileyface.commands.feedback;
+package org.smileyface.commands.categories;
 
 import java.util.List;
 import org.smileyface.commands.Category;
+import org.smileyface.commands.feedback.KnownIssuesCommand;
+import org.smileyface.commands.feedback.ReportIssueCommand;
 
 /**
  * Command category for feedback commands.

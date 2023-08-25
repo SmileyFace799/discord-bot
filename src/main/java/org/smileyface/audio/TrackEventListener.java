@@ -53,7 +53,6 @@ public class TrackEventListener extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         TrackQueue queue = MusicManager.getInstance().getQueue(player);
-        queue.setCurrentlyPlaying(null);
         if (endReason.mayStartNext && queue.hasNext()) {
             queue.playNext();
         } else {

@@ -3,7 +3,7 @@ package org.smileyface.components.buttons;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import org.smileyface.commands.music.Music;
+import org.smileyface.commands.categories.Music;
 import org.smileyface.misc.MultiTypeMap;
 
 /**

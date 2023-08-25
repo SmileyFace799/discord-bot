@@ -1,31 +1,40 @@
 package org.smileyface.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 /**
  * Responsible for storing & organizing tracks.
  */
 public class TrackQueue {
+    private final Random random;
     private final AudioPlayer player;
     private final List<MusicTrack> queue;
     private final GuildMessageChannel playerChannel;
     private final TrackQueueMessage trackQueueMessage;
-    private MusicTrack currentlyPlaying = null;
+    private MusicTrack currentlyPlaying;
+    private boolean shuffle;
+    private Repeat repeat;
 
     /**
      * Creates a queue of audio tracks.
      *
-     * @param player The audio player the queue is for.
+     * @param player        The audio player the queue is for.
      * @param playerChannel The message channel where the queue should send status messages in.
      */
     public TrackQueue(AudioPlayer player, GuildMessageChannel playerChannel) {
+        this.random = new Random();
         this.player = player;
         this.queue = new LinkedList<>();
         this.playerChannel = playerChannel;
         this.trackQueueMessage = new TrackQueueMessage(this);
+        this.currentlyPlaying = null;
+        this.shuffle = false;
+        this.repeat = Repeat.NO_REPEAT;
     }
 
     public AudioPlayer getPlayer() {
@@ -48,12 +57,8 @@ public class TrackQueue {
         return currentlyPlaying;
     }
 
-    public void setCurrentlyPlaying(MusicTrack currentlyPlaying) {
-        this.currentlyPlaying = currentlyPlaying;
-    }
-
     /**
-     * Queues a track, and plays it if the player.
+     * Queues a track, and plays it if the player is not playing anything.
      *
      * @param musicTrack The track to queue
      */
@@ -77,7 +82,15 @@ public class TrackQueue {
      * Plays the next track.
      */
     public synchronized void playNext() {
-        currentlyPlaying = queue.remove(0);
+        if (repeat == Repeat.REPEAT_SONG) {
+            currentlyPlaying = currentlyPlaying.copy();
+        } else {
+            MusicTrack lastPlayed = currentlyPlaying;
+            currentlyPlaying = queue.remove(shuffle ? random.nextInt(queue.size()) : 0);
+            if (repeat == Repeat.REPEAT_QUEUE) {
+                queue.add(lastPlayed.copy());
+            }
+        }
         player.playTrack(currentlyPlaying.getAudio());
     }
 
@@ -99,5 +112,64 @@ public class TrackQueue {
     public void stop() {
         player.destroy();
         trackQueueMessage.playerClosed();
+    }
+
+    public boolean isShuffled() {
+        return shuffle;
+    }
+
+    public void setShuffle(boolean shuffle) {
+        this.shuffle = shuffle;
+        trackQueueMessage.updateEmbed();
+    }
+
+    public boolean toggleShuffle() {
+        setShuffle(!shuffle);
+        return shuffle;
+    }
+
+    public Repeat getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(Repeat repeat) {
+        this.repeat = repeat;
+        trackQueueMessage.updateEmbed();
+    }
+
+    /**
+     * Modes of queue repeats.
+     */
+    public enum Repeat {
+        NO_REPEAT("Off"),
+        REPEAT_SONG("Song"),
+        REPEAT_QUEUE("Queue");
+
+        private final String str;
+
+        Repeat(String str) {
+            this.str = str;
+        }
+
+        public String getStr() {
+            return str;
+        }
+
+        /**
+         * Get a {@link Repeat Repeat} based on it's identifying string.
+         *
+         * @param str The identifying string to get the {@link Repeat Repeat} for
+         * @return The {@link Repeat Repeat} with the provided identifying string
+         * @throws IllegalArgumentException If there is no {@link Repeat Repeat}
+         *                                  with the provided string identifier
+         */
+        public static Repeat getRepeat(String str) {
+            return Arrays.stream(Repeat.values())
+                    .filter(repeat -> repeat.str.equalsIgnoreCase(str))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            String.format("No repeat with identifying string \"%s\"", str)
+                    ));
+        }
     }
 }

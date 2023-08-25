@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.dv8tion.jda.api.entities.Member;
@@ -87,49 +90,7 @@ public class MusicManager {
      *                   that queued the audio.
      */
     public void queue(String identifier, Member queuedBy, InteractionHook hook) {
-        TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
-        playerManager.loadItem(identifier, new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack audio) {
-                queue.queue(new MusicTrack(audio, queuedBy));
-                String title = audio.getInfo().title;
-                hook.sendMessage("Song/video added to queue: " + title).queue();
-                queue.getTrackQueueMessage()
-                        .setLastCommand(queuedBy, "Queued \"" + title + "\"");
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                if (playlist.isSearchResult()) {
-                    trackLoaded(playlist.getTracks().get(0));
-                } else {
-                    for (AudioTrack audio : playlist.getTracks()) {
-                        queue.queue(new MusicTrack(audio, queuedBy));
-                    }
-                    String title = playlist.getName();
-                    hook.sendMessage("Playlist added to queue: " + title).queue();
-                    queue.getTrackQueueMessage()
-                            .setLastCommand(queuedBy, "Queued \"" + title + "\"");
-                }
-            }
-
-            @Override
-            public void noMatches() {
-                hook.sendMessage("Couldn't find song/video/playlist").queue();
-            }
-
-            @Override
-            public void loadFailed(FriendlyException fe) {
-                if (fe.severity.equals(FriendlyException.Severity.COMMON)) {
-                    hook.sendMessage(fe.getMessage()).queue();
-                } else {
-                    hook.sendMessage("An unknown error occurred").queue();
-                    Logger.getLogger(getClass().getName()).log(
-                            Level.WARNING, "Audio load failed: {0}", fe.getMessage()
-                    );
-                }
-            }
-        });
+        playerManager.loadItem(identifier, new AudioLoadHandler(queuedBy, hook));
     }
 
     /**
@@ -141,47 +102,119 @@ public class MusicManager {
      *                    that queued the audios
      */
     public void queueMultiple(List<String> identifiers, Member queuedBy, InteractionHook hook) {
-        TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
-        for (String identifier : identifiers) {
-            playerManager.loadItemOrdered(0, identifier, new AudioLoadResultHandler() {
-                @Override
-                public void trackLoaded(AudioTrack audio) {
-                    queue.queue(new MusicTrack(audio, queuedBy));
-                }
-
-                @Override
-                public void playlistLoaded(AudioPlaylist playlist) {
-                    if (playlist.isSearchResult()) {
-                        trackLoaded(playlist.getTracks().get(0));
-                    } else {
-                        for (AudioTrack audio : playlist.getTracks()) {
-                            queue.queue(new MusicTrack(audio, queuedBy));
+        CompletableFuture.runAsync(() -> {
+            TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
+            for (String identifier : identifiers) {
+                Future<Void> load = playerManager.loadItemOrdered(0, identifier,
+                        new AudioLoadHandlerSilent(queuedBy));
+                if (identifiers.get(identifiers.size() - 1).equals(identifier)) {
+                    try {
+                        //Wait for last song to get queued
+                        load.get();
+                        queue.getTrackQueueMessage().updateEmbed();
+                    } catch (InterruptedException | ExecutionException e) {
+                        Logger.getLogger(getClass().getName())
+                                .log(Level.WARNING, "Waiting for load failed", e);
+                        if (e.getClass() == InterruptedException.class) {
+                            Thread.currentThread().interrupt();
                         }
                     }
                 }
-
-                @Override
-                public void noMatches() {
-                    //Do nothing
-                }
-
-                @Override
-                public void loadFailed(FriendlyException fe) {
-                    if (!fe.severity.equals(FriendlyException.Severity.COMMON)) {
-                        Logger.getLogger(getClass().getName()).log(
-                                Level.WARNING, "Audio load failed: {0}", fe.getMessage()
-                        );
-                    }
-                }
-            });
-        }
-        hook.sendMessage("Your songs / videos / playlists are being queued!\n"
-                + "(Note: Any not found will be skipped)").queue();
-        queue.getTrackQueueMessage()
-                .setLastCommand(queuedBy, "Queued multiple songs / videos / playlists");
+            }
+            queue.getTrackQueueMessage()
+                    .setLastCommand(queuedBy, "Queued multiple songs / videos / playlists");
+        });
+        hook.sendMessage("Your songs / videos / playlists are being queued! "
+                + "(This may take a while)\nThe queue will update once all songs are queued "
+                + "(Any not found will be skipped)").queue();
     }
 
     public void stop(long guildId) {
         queues.remove(guildId).stop();
+    }
+
+    private class AudioLoadHandlerSilent implements AudioLoadResultHandler {
+        protected final TrackQueue queue;
+        protected final Member queuedBy;
+
+        public AudioLoadHandlerSilent(Member queuedBy) {
+            queue = queues.get(queuedBy.getGuild().getIdLong());
+            this.queuedBy = queuedBy;
+        }
+
+        @Override
+        public void trackLoaded(AudioTrack audio) {
+            queue.queue(new MusicTrack(audio, queuedBy));
+        }
+
+        @Override
+        public void playlistLoaded(AudioPlaylist playlist) {
+            if (playlist.isSearchResult()) {
+                trackLoaded(playlist.getTracks().get(0));
+            } else {
+                for (AudioTrack audio : playlist.getTracks()) {
+                    queue.queue(new MusicTrack(audio, queuedBy));
+                }
+            }
+        }
+
+        @Override
+        public void noMatches() {
+            //Do nothing
+        }
+
+        @Override
+        public void loadFailed(FriendlyException fe) {
+            if (!fe.severity.equals(FriendlyException.Severity.COMMON)) {
+                Logger.getLogger(getClass().getName()).log(Level.WARNING,
+                        "Audio load failed: {0}", fe.getMessage()
+                );
+            }
+        }
+    }
+
+    private class AudioLoadHandler extends AudioLoadHandlerSilent {
+        protected final InteractionHook hook;
+
+        public AudioLoadHandler(Member queuedBy, InteractionHook hook) {
+            super(queuedBy);
+            this.hook = hook;
+        }
+
+        @Override
+        public void trackLoaded(AudioTrack audio) {
+            super.trackLoaded(audio);
+            String title = audio.getInfo().title;
+            hook.sendMessage("Song/video added to queue: " + title).queue();
+            queue.getTrackQueueMessage()
+                    .setLastCommand(queuedBy, "Queued \"" + title + "\"");
+        }
+
+        @Override
+        public void playlistLoaded(AudioPlaylist playlist) {
+            super.playlistLoaded(playlist);
+            if (!playlist.isSearchResult()) {
+                String title = playlist.getName();
+                hook.sendMessage("Playlist added to queue: " + title).queue();
+                queue.getTrackQueueMessage()
+                        .setLastCommand(queuedBy, "Queued \"" + title + "\"");
+            }
+        }
+
+        @Override
+        public void noMatches() {
+            super.noMatches();
+            hook.sendMessage("Couldn't find song/video/playlist").queue();
+        }
+
+        @Override
+        public void loadFailed(FriendlyException fe) {
+            super.loadFailed(fe);
+            if (fe.severity.equals(FriendlyException.Severity.COMMON)) {
+                hook.sendMessage(fe.getMessage()).queue();
+            } else {
+                hook.sendMessage("An unknown error occurred").queue();
+            }
+        }
     }
 }
