@@ -167,7 +167,7 @@ public class MusicManager {
         public void loadFailed(FriendlyException fe) {
             if (!fe.severity.equals(FriendlyException.Severity.COMMON)) {
                 Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                        "Audio load failed: {0}", fe.getMessage()
+                        "Audio load failed", fe
                 );
             }
         }

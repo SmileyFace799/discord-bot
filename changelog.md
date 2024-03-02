@@ -1,5 +1,8 @@
 Changelog:
 
+v1.5.1
+- Modified: Updated `JDA` to version `5.0.0-beta.20`. This should hopefully fix some voice playback issues
+
 v1.5.0
 <br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
 - Added: Shuffle feature (/shuffle, /shf)
