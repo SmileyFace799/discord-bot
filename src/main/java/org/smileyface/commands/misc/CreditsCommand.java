@@ -30,9 +30,9 @@ public class CreditsCommand extends BotCommand {
                 + "and I also don't mind if people want to fork my repository "
                 + "to make their own version of it."
                 + "\n\nThe bot is developed with the help of the following libraries:"
-                + "\n - Java Discord API (JDA): " + "`https://github.com/DV8FromTheWorld/JDA`"
-                + "\n - [fork] LavaPlayer - Audio player library for Discord: "
-                + "`https://github.com/Walkyst/lavaplayer-fork`"
+                + "\n- Java Discord API (JDA): " + "`https://github.com/DV8FromTheWorld/JDA`"
+                + "\n- [fork] LavaPlayer - Audio player library for Discord: "
+                + "`https://github.com/lavalink-devs/lavaplayer`"
         );
 
         //DO NOT REMOVE OR MODIFY THIS

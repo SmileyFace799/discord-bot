@@ -1,5 +1,10 @@
 Changelog:
 
+v1.5.2
+- Modified: Moved from `Walkyst/lavaplayer-fork` to `lavalink-devs/lavaplayer`, since the old fork is seemingly not maintained anymore
+- Modified: `lavaplayer` version temporarily moved to a snapshot release, to fix a 400 response code when searching for a song
+- Modified: Credits command changed to include the new fork instead of the old one
+
 v1.5.1
 - Modified: Updated `JDA` to version `5.0.0-beta.20`. This should hopefully fix some voice playback issues
 
