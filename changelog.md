@@ -1,5 +1,8 @@
 Changelog:
 
+v1.5.3
+- Modified: Updated `lavaplayer` to version `2.1.1`.
+
 v1.5.2
 - Modified: Moved from `Walkyst/lavaplayer-fork` to `lavalink-devs/lavaplayer`, since the old fork is seemingly not maintained anymore
 - Modified: `lavaplayer` version temporarily moved to a snapshot release, to fix a 400 response code when searching for a song
