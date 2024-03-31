@@ -1,5 +1,10 @@
 Changelog:
 
+v1.5.4
+<br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
+- Modified: Updated `lavaplayer` to version `0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT`.
+  This will be changed to a more stable version once a stable version that works is released
+
 v1.5.3
 - Modified: Updated `lavaplayer` to version `2.1.1`.
 
@@ -12,7 +17,6 @@ v1.5.1
 - Modified: Updated `JDA` to version `5.0.0-beta.20`. This should hopefully fix some voice playback issues
 
 v1.5.0
-<br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
 - Added: Shuffle feature (/shuffle, /shf)
 - Added: Repeat fetature (/repeat, /rpt)
 - Added: Queue embed shown together with music player embed
