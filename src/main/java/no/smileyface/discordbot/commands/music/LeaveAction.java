@@ -39,7 +39,7 @@ public class LeaveAction extends BotAction<BotAction.ArgKey> {
 	 *
 	 * @param guild The guild to leave voice of
 	 * @return The queue associated with the voice connection that was left.
-	 * Will be {@code null} if the bot didn't actually leave voice
+	 *         Will be {@code null} if the bot didn't actually leave voice
 	 */
 	public static TrackQueue leaveSilently(Guild guild) {
 		guild.getAudioManager().closeAudioConnection();

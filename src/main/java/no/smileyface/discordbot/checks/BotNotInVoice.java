@@ -21,7 +21,7 @@ public class BotNotInVoice implements Check {
 	}
 
 	@Override
-	public void check(IReplyCallback event) throws no.smileyface.discordbotframework.checks.ChecksFailedException {
+	public void check(IReplyCallback event) throws ChecksFailedException {
 		if (inGuild.checkAndReturn(event).getGuild().getAudioManager().isConnected()) {
 			throw new ChecksFailedException(
 					"The bot is already connected to another voice channel");

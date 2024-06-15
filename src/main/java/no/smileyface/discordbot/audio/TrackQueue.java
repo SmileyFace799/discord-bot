@@ -101,7 +101,7 @@ public class TrackQueue {
      */
     public void skip(int amount) {
         for (int i = amount; i > 1; i--) {
-            queue.remove(0);
+            queue.removeFirst();
         }
         player.stopTrack();
     }

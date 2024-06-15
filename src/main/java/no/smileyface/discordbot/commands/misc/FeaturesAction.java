@@ -12,6 +12,9 @@ import no.smileyface.discordbotframework.misc.MultiTypeMap;
  * Shows the available features of the bot.
  */
 public class FeaturesAction extends BotAction<BotAction.ArgKey> {
+    /**
+     * Makes he features action.
+     */
     public FeaturesAction() {
         super(new ActionCommand<>(Commands.slash("features",
                 "Shows what optional features the bot currently has"

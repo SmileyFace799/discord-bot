@@ -111,7 +111,7 @@ public class MusicManager {
             for (String identifier : identifiers) {
                 Future<Void> load = playerManager.loadItemOrdered(0, identifier,
                         new AudioLoadHandlerSilent(queuedBy));
-                if (identifiers.get(identifiers.size() - 1).equals(identifier)) {
+                if (identifiers.getLast().equals(identifier)) {
                     try {
                         //Wait for last song to get queued
                         load.get();
@@ -154,7 +154,7 @@ public class MusicManager {
         @Override
         public void playlistLoaded(AudioPlaylist playlist) {
             if (playlist.isSearchResult()) {
-                trackLoaded(playlist.getTracks().get(0));
+                trackLoaded(playlist.getTracks().getFirst());
             } else {
                 for (AudioTrack audio : playlist.getTracks()) {
                     queue.queue(new MusicTrack(audio, queuedBy));

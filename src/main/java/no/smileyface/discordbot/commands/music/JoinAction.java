@@ -40,7 +40,7 @@ public class JoinAction extends BotAction<BotAction.ArgKey> {
 	 * Join the author's voice channel, if possible.
 	 *
 	 * @return The track queue associated with the newly made voice connection.
-	 * This will be {@code null} if the bot didn't actually join voice
+	 *         This will be {@code null} if the bot didn't actually join voice
 	 */
 	protected static TrackQueue joinSilently(
 			AudioChannel audioChannel, GuildMessageChannel playerChannel
