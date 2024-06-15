@@ -1,4 +1,18 @@
-Changelog:
+# Changelog:
+
+v1.6.0:
+- Added: `dev.lavalink.youtube:v2` as a dependency. 
+- Modified: Commands refactored into actions
+- Modified: Actions also buttons & modals, which have been moved here
+- Modified: General-purpose bot code moved to separate dependency (`discord-bot-framework`)
+- Modified: Changed group id & package name from `org.smileyface` to `no.smileyface`
+- Modified: Changed base package name from `org.smileyface` to `no.smileyface.discordbot`
+- Modified: Updated the bot's YoutubeAudioSourceManager, as it was moved from `lavaplayer` into a separate dependency (`v2`)
+- Modified: Updated from `Java 17` to `Java 21`
+- Modified: Updated `lavaplayer` to version `2.2.0`
+- Modified: Updated `JDA` to version `5.0.0-beta.24`
+- Removed: The Category interface, and any implementing classes
+- Removed: The Singleton manager classes
 
 v1.5.4
 <br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
