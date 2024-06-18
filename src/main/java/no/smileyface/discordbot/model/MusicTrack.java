@@ -1,4 +1,4 @@
-package no.smileyface.discordbot.audio;
+package no.smileyface.discordbot.model;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;

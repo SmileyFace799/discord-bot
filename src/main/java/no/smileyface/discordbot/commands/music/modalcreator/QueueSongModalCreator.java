@@ -26,6 +26,6 @@ public class QueueSongModalCreator extends BotAction<BotAction.ArgKey> {
 
 	@Override
 	protected void execute(IReplyCallback event, MultiTypeMap<ArgKey> args, InputRecord inputs) {
-		ActionUtil.tryReplyModal(event, inputs.getModals(), "queueSongModal");
+		ActionUtil.tryReplyModal(event, inputs, "queueSongModal");
 	}
 }

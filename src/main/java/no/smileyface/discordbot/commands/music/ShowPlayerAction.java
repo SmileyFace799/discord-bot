@@ -3,8 +3,8 @@ package no.smileyface.discordbot.commands.music;
 import java.util.Objects;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import no.smileyface.discordbot.audio.MusicManager;
 import no.smileyface.discordbot.checks.InVoiceWithBot;
+import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionCommand;
 import no.smileyface.discordbotframework.entities.BotAction;
@@ -36,9 +36,7 @@ public class ShowPlayerAction extends BotAction<BotAction.ArgKey> {
 	) {
 		MusicManager
 				.getInstance()
-				.getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
-				.getTrackQueueMessage()
-				.showPlayer();
+				.showPlayerMessage(Objects.requireNonNull(event.getGuild()));
 		event.reply("Player shown!").setEphemeral(true).queue();
 	}
 }

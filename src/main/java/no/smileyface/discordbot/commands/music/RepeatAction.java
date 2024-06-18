@@ -7,9 +7,9 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import no.smileyface.discordbot.audio.MusicManager;
-import no.smileyface.discordbot.audio.TrackQueue;
 import no.smileyface.discordbot.checks.InVoiceWithBot;
+import no.smileyface.discordbot.model.TrackQueue;
+import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionButton;
 import no.smileyface.discordbotframework.entities.ActionCommand;
@@ -59,17 +59,8 @@ public class RepeatAction extends BotAction<RepeatAction.RepeatKey> {
 
 		@Override
 		public MultiTypeMap<RepeatKey> createArgs(ButtonInteractionEvent event) {
-			TrackQueue.Repeat oldRepeatMode = MusicManager
-					.getInstance()
-					.getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
-					.getRepeat();
-
 			MultiTypeMap<RepeatKey> args = new MultiTypeMap<>();
-			args.put(RepeatKey.REPEAT_MODE, switch (oldRepeatMode) {
-				case NO_REPEAT -> TrackQueue.Repeat.REPEAT_SONG;
-				case REPEAT_SONG -> TrackQueue.Repeat.REPEAT_QUEUE;
-				case REPEAT_QUEUE -> TrackQueue.Repeat.NO_REPEAT;
-			});
+			args.put(RepeatKey.CHANGE_NEXT, null);
 			return args;
 		}
 	}
@@ -87,17 +78,24 @@ public class RepeatAction extends BotAction<RepeatAction.RepeatKey> {
 			MultiTypeMap<RepeatKey> args,
 			InputRecord inputs
 	) {
-		TrackQueue.Repeat repeat = args.get(RepeatKey.REPEAT_MODE, TrackQueue.Repeat.class);
-		if (repeat != null) {
-			MusicManager.getInstance()
-					.getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
-					.setRepeat(repeat);
-			event.reply("Set repeat mode to: " + repeat.getStr()).setEphemeral(true).queue();
+		TrackQueue.Repeat repeat;
+		if (args.containsKey(RepeatKey.CHANGE_NEXT)) {
+			repeat = MusicManager
+					.getInstance()
+					.changeRepeat(Objects.requireNonNull(event.getMember()));
 		} else {
-			event.reply("Unknown repeat mode. "
-							+ "The valid modes are \"song\", \"queue\" or \"off\""
-					).setEphemeral(true)
-					.queue();
+			repeat = args.get(RepeatKey.REPEAT_MODE, TrackQueue.Repeat.class);
+			if (repeat == null) {
+				event.reply("Unknown repeat mode. "
+						+ "The valid modes are \"song\", \"queue\" or \"off\""
+				).setEphemeral(true).queue();
+			}
+		}
+		if (repeat != null) {
+			MusicManager
+					.getInstance()
+					.setRepeat(repeat, Objects.requireNonNull(event.getMember()));
+			event.reply("Set repeat mode to: " + repeat.getStr()).setEphemeral(true).queue();
 		}
 	}
 
@@ -106,5 +104,6 @@ public class RepeatAction extends BotAction<RepeatAction.RepeatKey> {
 	 */
 	public enum RepeatKey implements ArgKey {
 		REPEAT_MODE,
+		CHANGE_NEXT
 	}
 }

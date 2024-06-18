@@ -6,7 +6,7 @@
 
     <groupId>no.smileyface</groupId>
     <artifactId>discord-bot</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.1</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>com.github.smileyface799</groupId>
             <artifactId>discord-bot-framework</artifactId>
-            <version>07341014dc</version>
+            <version>4cf810009e</version>
         </dependency>
     </dependencies>
 

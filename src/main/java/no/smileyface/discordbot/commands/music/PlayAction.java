@@ -17,9 +17,9 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
-import no.smileyface.discordbot.audio.MusicManager;
 import no.smileyface.discordbot.checks.InVoice;
 import no.smileyface.discordbot.commands.SpotifyManager;
+import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionCommand;
 import no.smileyface.discordbotframework.entities.ActionModal;
@@ -264,33 +264,31 @@ public class PlayAction extends BotAction<PlayAction.PlayKey> {
 		List<String> identifiers = new ArrayList<>();
 
 		String[] splitInput = input.replace("  ", " ").split(" ");
-		try {
-			if (Arrays.stream(splitInput).allMatch(identifier ->
-					identifier.startsWith("https://") || identifier.startsWith("http://"))
-			) {
-				identifiers.addAll(getIdentifiers(splitInput));
-			} else {
-				String search = YOUTUBE_SEARCH + input;
+		if (Arrays.stream(splitInput).allMatch(identifier ->
+				identifier.startsWith("https://") || identifier.startsWith("http://"))
+		) {
+			identifiers.addAll(getIdentifiers(splitInput));
+		} else {
+			String search = YOUTUBE_SEARCH + input;
 
-				if (songSearch) {
-					search += YOUTUBE_SONG_FILTER;
-				}
-				identifiers.add(search);
+			if (songSearch) {
+				search += YOUTUBE_SONG_FILTER;
 			}
+			identifiers.add(search);
+		}
 
-			JoinAction.joinSilently(
-					Objects.requireNonNull(
-							Objects.requireNonNull(author.getVoiceState()).getChannel()
-					),
-					(GuildMessageChannel) event.getMessageChannel()
-			);
-			if (identifiers.size() == 1) {
-				MusicManager.getInstance().queue(identifiers.getFirst(), author, event.getHook());
-			} else {
-				MusicManager.getInstance().queueMultiple(identifiers, author, event.getHook());
-			}
-		} catch (IllegalStateException ise) {
-			event.reply(ise.getMessage()).queue();
+		MusicManager.getInstance().createPlayerIfNotExists(
+				Objects.requireNonNull(Objects.requireNonNull(
+						author.getVoiceState()
+				).getChannel()),
+				(GuildMessageChannel) event.getMessageChannel(),
+				inputs,
+				null
+		);
+		if (identifiers.size() == 1) {
+			MusicManager.getInstance().queue(identifiers.getFirst(), author, event.getHook());
+		} else {
+			MusicManager.getInstance().queueMultiple(identifiers, author, event.getHook());
 		}
 	}
 

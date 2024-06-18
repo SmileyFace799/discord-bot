@@ -1,7 +1,7 @@
 package no.smileyface.discordbot.checks;
 
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import no.smileyface.discordbot.audio.MusicManager;
+import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.checks.Check;
 import no.smileyface.discordbotframework.checks.ChecksFailedException;
 import no.smileyface.discordbotframework.checks.InGuild;

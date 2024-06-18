@@ -1,8 +1,6 @@
 package no.smileyface.discordbot.commands.music;
 
 import java.util.Objects;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -11,10 +9,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import no.smileyface.discordbot.audio.MusicManager;
-import no.smileyface.discordbot.audio.TrackQueue;
 import no.smileyface.discordbot.checks.BotIsPlaying;
 import no.smileyface.discordbot.checks.InVoiceWithBot;
+import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionButton;
 import no.smileyface.discordbotframework.entities.ActionCommand;
@@ -75,21 +72,14 @@ public class SkipAction extends BotAction<SkipAction.SkipKey> {
 			MultiTypeMap<SkipKey> args,
 			InputRecord inputs
 	) {
-		Member author = Objects.requireNonNull(event.getMember());
-		Guild guild = author.getGuild();
-		TrackQueue queue = MusicManager.getInstance().getQueue(guild.getIdLong());
-		int amount = Math.clamp(
-				args.get(SkipKey.AMOUNT, Integer.class),
-				1,
-				queue.getTracks().size() + 1
+		int actualAmount = MusicManager.getInstance().skip(
+				Objects.requireNonNull(event.getMember()),
+				args.get(SkipKey.AMOUNT, Integer.class)
 		);
-		queue.skip(amount);
-		String replyMessage = "Skipped %s song".formatted(amount);
-		if (amount != 1) {
-			replyMessage += "s";
-		}
-		event.reply(replyMessage).setEphemeral(true).queue();
-		queue.getTrackQueueMessage().setLastCommand(author, replyMessage);
+		event.reply(String.format("Skipped %s song%s",
+				actualAmount,
+				actualAmount == 1 ? "" : "s")
+		).setEphemeral(true).queue();
 	}
 
 	/**

@@ -4,8 +4,8 @@ import java.util.Objects;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import no.smileyface.discordbot.audio.MusicManager;
 import no.smileyface.discordbot.checks.InVoiceWithBot;
+import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionButton;
 import no.smileyface.discordbotframework.entities.ActionCommand;
@@ -39,8 +39,7 @@ public class ShuffleAction extends BotAction<BotAction.ArgKey> {
 	) {
 		event.reply(String.format("Shuffle %s!",
 				MusicManager.getInstance()
-						.getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
-						.toggleShuffle()
+						.toggleShuffled(Objects.requireNonNull(event.getMember()))
 						? "enabled" : "disabled"
 		)).setEphemeral(true).queue();
 	}

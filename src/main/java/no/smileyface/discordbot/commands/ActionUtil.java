@@ -1,8 +1,8 @@
 package no.smileyface.discordbot.commands;
 
-import java.util.Collection;
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionModal;
 import no.smileyface.discordbotframework.entities.BotAction;
 
@@ -15,24 +15,6 @@ public class ActionUtil {
 	}
 
 	/**
-	 * Finds a modal based on ID from a collection of modals.
-	 *
-	 * @param modals The collection of modals
-	 * @param modalId The ID of the modal to find
-	 * @return The modal with the specified ID, null if not found
-	 */
-	public static ActionModal<? extends BotAction.ArgKey> findModalById(
-			Collection<? extends ActionModal<? extends BotAction.ArgKey>> modals,
-			String modalId
-	) {
-		return modals
-				.stream()
-				.filter(m -> m.getId().equalsIgnoreCase(modalId))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
 	 * <p>Tries to reply to a modal, and gives an error message if it fails.
 	 * This will always acknowledge & reply to the event.</p>
 	 * <p>Possible reasons for failure are:</p>
@@ -42,16 +24,15 @@ public class ActionUtil {
 	 * </ul>
 	 *
 	 * @param event The event to reply to
-	 * @param modals THe collection of possible modals to respond with
+	 * @param inputs THe collection of possible inputs to respond with
 	 * @param modalId The ID of the modal to pick for the response
 	 */
 	public static void tryReplyModal(
 			IReplyCallback event,
-			Collection<? extends ActionModal<? extends BotAction.ArgKey>> modals,
+			InputRecord inputs,
 			String modalId
 	) {
-		ActionModal<? extends BotAction.ArgKey> modal =
-				findModalById(modals, modalId);
+		ActionModal<? extends BotAction.ArgKey> modal = inputs.findModal(modalId);
 		if (modal == null) {
 			event.reply(String.format("Could not show modal window \"%s\": "
 					+ "The bot has no such modal window", modalId

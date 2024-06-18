@@ -1,6 +1,12 @@
 # Changelog:
 
+v1.6.1:
+- Added: Player message buttons (again)
+- Modified: Major rewrite of the music queue logic, to follow MVC design pattern
+- Modified: `LavaPlayerJdaWrapper` is now a private static class inside `MusicManager`
+
 v1.6.0:
+<br/>This version ended up being quite incomplete, and was immediately followed by v1.6.1. It is therefore not available for download
 - Added: `dev.lavalink.youtube:v2` as a dependency. 
 - Modified: Commands refactored into actions
 - Modified: Actions also buttons & modals, which have been moved here
@@ -13,6 +19,7 @@ v1.6.0:
 - Modified: Updated `JDA` to version `5.0.0-beta.24`
 - Removed: The Category interface, and any implementing classes
 - Removed: The Singleton manager classes
+- Removed: Player message buttons. The backend will receive an extensive to make these work again
 
 v1.5.4
 <br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**

@@ -30,6 +30,6 @@ public class GoToPageModalCreator extends BotAction<BotAction.ArgKey> {
 			MultiTypeMap<ArgKey> args,
 			InputRecord inputs
 	) {
-		ActionUtil.tryReplyModal(event, inputs.getModals(), "goToPageModal");
+		ActionUtil.tryReplyModal(event, inputs, "goToPageModal");
 	}
 }

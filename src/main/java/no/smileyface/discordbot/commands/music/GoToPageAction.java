@@ -10,9 +10,8 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import no.smileyface.discordbot.audio.MusicManager;
-import no.smileyface.discordbot.audio.TrackQueueMessage;
 import no.smileyface.discordbot.checks.InVoiceWithBot;
+import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionButton;
 import no.smileyface.discordbotframework.entities.ActionModal;
@@ -41,11 +40,10 @@ public class GoToPageAction extends BotAction<GoToPageAction.GoToPageKey> {
 		@Override
 		public MultiTypeMap<GoToPageKey> createArgs(ButtonInteractionEvent event) {
 			MultiTypeMap<GoToPageKey> args = new MultiTypeMap<>();
-			args.put(GoToPageKey.INCREMENT, false);
+			args.put(GoToPageKey.CHANGE, false);
 			return args;
 		}
 	}
-
 
 
 	private static class NextPageButton extends ActionButton<GoToPageKey> {
@@ -64,7 +62,7 @@ public class GoToPageAction extends BotAction<GoToPageAction.GoToPageKey> {
 		@Override
 		public MultiTypeMap<GoToPageKey> createArgs(ButtonInteractionEvent event) {
 			MultiTypeMap<GoToPageKey> args = new MultiTypeMap<>();
-			args.put(GoToPageKey.INCREMENT, true);
+			args.put(GoToPageKey.CHANGE, true);
 			return args;
 		}
 	}
@@ -109,29 +107,36 @@ public class GoToPageAction extends BotAction<GoToPageAction.GoToPageKey> {
 			MultiTypeMap<GoToPageKey> args,
 			InputRecord inputs
 	) {
-		TrackQueueMessage message = MusicManager
-				.getInstance()
-				.getQueue(Objects.requireNonNull(event.getGuild()).getIdLong())
-				.getTrackQueueMessage();
-		if (args.containsKey(GoToPageKey.INCREMENT)) {
-			boolean next = args.get(GoToPageKey.INCREMENT, Boolean.class);
+		if (args.containsKey(GoToPageKey.CHANGE)) {
+			boolean next = args.get(GoToPageKey.CHANGE, Boolean.class);
 			if (next) {
-				event.reply(message.incrementPage(1)
-						? String.format(SHOWING_PAGE_BASE, message.getPage())
-						: "Already showing the last page"
-				).setEphemeral(true).queue();
+				MusicManager.getInstance().incrementPage(
+						Objects.requireNonNull(event.getGuild()),
+						(actualPage, changed) -> event.reply(Boolean.TRUE.equals(changed)
+								? String.format(SHOWING_PAGE_BASE, actualPage)
+								: "Already showing the last page"
+						).setEphemeral(true).queue()
+				);
 			} else {
-				event.reply(message.incrementPage(-1)
-						? String.format(SHOWING_PAGE_BASE, message.getPage())
-						: "Already showing the first page"
-				).setEphemeral(true).queue();
+				MusicManager.getInstance().decrementPage(
+						Objects.requireNonNull(event.getGuild()),
+						(actualPage, changed) -> event.reply(Boolean.TRUE.equals(changed)
+								? String.format(SHOWING_PAGE_BASE, actualPage)
+								: "Already showing the first page"
+						).setEphemeral(true).queue()
+				);
 			}
 		} else {
 			String rawPage = args.get(GoToPageKey.PAGE, String.class);
 			try {
-				int page = Integer.parseInt(rawPage);
-				message.setPage(page);
-				event.reply(String.format(SHOWING_PAGE_BASE, page)).setEphemeral(true).queue();
+				MusicManager.getInstance().setPage(
+						Objects.requireNonNull(event.getGuild()),
+						Integer.parseInt(rawPage),
+						actualPage -> event
+								.reply(String.format(SHOWING_PAGE_BASE, actualPage))
+								.setEphemeral(true)
+								.queue()
+				);
 			} catch (NumberFormatException nfe) {
 				event.reply(String.format("\"%s\" is not a valid number", rawPage))
 						.setEphemeral(true).queue();
@@ -144,6 +149,6 @@ public class GoToPageAction extends BotAction<GoToPageAction.GoToPageKey> {
 	 */
 	public enum GoToPageKey implements ArgKey {
 		PAGE,
-		INCREMENT
+		CHANGE
 	}
 }
