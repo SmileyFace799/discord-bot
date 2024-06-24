@@ -7,5 +7,4 @@ lib/
 *.txt
 dependency-reduced-pom.xml
 host_connect.*
-
-#Exceptions
+botFiles/

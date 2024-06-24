@@ -10,20 +10,24 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import no.smileyface.discordbot.checks.InVoice;
 import no.smileyface.discordbot.commands.SpotifyManager;
+import no.smileyface.discordbot.model.MusicTrack;
 import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.InputRecord;
 import no.smileyface.discordbotframework.entities.ActionCommand;
 import no.smileyface.discordbotframework.entities.ActionModal;
 import no.smileyface.discordbotframework.entities.BotAction;
+import no.smileyface.discordbotframework.entities.ContextButton;
 import no.smileyface.discordbotframework.misc.MultiTypeMap;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -110,6 +114,67 @@ public class PlayAction extends BotAction<PlayAction.PlayKey> {
 			);
 
 			return args;
+		}
+	}
+
+	/**
+	 * Button to undo queuing tracks action.
+	 */
+	public class UndoContextButton extends ContextButton<PlayKey> {
+		private final List<MusicTrack> tracksToUndo;
+
+		protected UndoContextButton() {
+			super(PlayAction.this, ButtonStyle.PRIMARY, "Undo");
+			this.tracksToUndo = new ArrayList<>();
+		}
+
+		public void addTracksToUndo(List<MusicTrack> tracks) {
+			tracksToUndo.addAll(tracks);
+		}
+
+		public void addTracksToUndo(MusicTrack track) {
+			tracksToUndo.add(track);
+		}
+
+		@Override
+		public void clicked(
+				ButtonInteractionEvent event,
+				MultiTypeMap<PlayKey> args,
+				InputRecord inputs
+		) {
+			try {
+				MusicManager.getInstance().remove(
+						tracksToUndo,
+						Objects.requireNonNull(event.getGuild())
+				);
+				event.reply("Removed the queued song" + (tracksToUndo.size() == 1 ? "" : "s"))
+						.setEphemeral(true)
+						.queue();
+			} catch (NullPointerException npe) {
+				event.reply("Music has already stopped")
+						.setEphemeral(true)
+						.queue();
+			}
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			if (!super.equals(o)) {
+				return false;
+			}
+			UndoContextButton that = (UndoContextButton) o;
+			return Objects.equals(tracksToUndo, that.tracksToUndo);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(super.hashCode(), tracksToUndo);
 		}
 	}
 
@@ -286,9 +351,19 @@ public class PlayAction extends BotAction<PlayAction.PlayKey> {
 				null
 		);
 		if (identifiers.size() == 1) {
-			MusicManager.getInstance().queue(identifiers.getFirst(), author, event.getHook());
+			MusicManager.getInstance().queue(
+					identifiers.getFirst(),
+					new UndoContextButton(),
+					author,
+					event.getHook()
+			);
 		} else {
-			MusicManager.getInstance().queueMultiple(identifiers, author, event.getHook());
+			MusicManager.getInstance().queueMultiple(
+					identifiers,
+					new UndoContextButton(),
+					author,
+					event.getHook()
+			);
 		}
 	}
 

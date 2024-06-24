@@ -26,6 +26,7 @@ import no.smileyface.discordbot.model.intermediary.events.ShowPlayerEvent;
 import no.smileyface.discordbot.model.intermediary.events.ShuffleChangedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TrackQueuedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TrackSkippedEvent;
+import no.smileyface.discordbot.model.intermediary.events.TracksRemovedEvent;
 import no.smileyface.discordbotframework.InputRecord;
 
 public class TrackQueueMessage implements QueueEventListener {
@@ -214,7 +215,11 @@ public class TrackQueueMessage implements QueueEventListener {
 			);
 			case MultipleQueuedEvent(Member queuedBy) -> setLastCommand(
 					queuedBy,
-					"Queued multiple songs / videos / playlists"
+					"Queued multiple songs / videos"
+			);
+			case TracksRemovedEvent(Member removedBy) -> setLastCommand(
+					removedBy,
+					"Removed songs / videos from the queue"
 			);
 			case PauseChangedEvent(boolean paused, Member pausedBy) -> {
 				musicPaused = paused;

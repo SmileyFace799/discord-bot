@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.entities.Member;
@@ -30,6 +31,8 @@ import no.smileyface.discordbot.model.intermediary.events.ShuffleChangedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TrackQueuedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TrackSkippedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TrackStartedEvent;
+import no.smileyface.discordbot.model.intermediary.events.TracksRemovedEvent;
+import no.smileyface.discordbot.model.intermediary.events.UndoQueuedEvent;
 
 /**
  * Responsible for storing & organizing tracks.
@@ -142,9 +145,10 @@ public class TrackQueue {
      */
     public synchronized void queue(
             List<AudioItem> audioItems,
-            Member queuedBy
+            Member queuedBy,
+            Consumer<List<MusicTrack>> postHook
     ) {
-        audioItems
+        List<MusicTrack> tracks = audioItems
                 .stream()
                 .flatMap(item -> switch (item) {
                     case AudioTrack track -> Stream.of(track);
@@ -153,10 +157,12 @@ public class TrackQueue {
                 })
                 .filter(Objects::nonNull)
                 .map(audio -> new MusicTrack(audio, queuedBy))
-                .forEach(queue::add);
+                .toList();
+        queue.addAll(tracks);
         if (player.getPlayingTrack() == null) {
             playNext();
         }
+        postHook.accept(tracks);
         listener.onMusicEvent(new MultipleQueuedEvent(queuedBy));
     }
 
@@ -168,13 +174,15 @@ public class TrackQueue {
      */
     public synchronized void queue(
             AudioTrack audioTrack,
-            Member queuedBy
+            Member queuedBy,
+            Consumer<MusicTrack> postHook
     ) {
         MusicTrack queuedTrack = new MusicTrack(audioTrack, queuedBy);
         queue.add(queuedTrack);
         if (player.getPlayingTrack() == null) {
             playNext();
         }
+        postHook.accept(queuedTrack);
         listener.onMusicEvent(new TrackQueuedEvent(queuedTrack));
     }
 
@@ -184,30 +192,89 @@ public class TrackQueue {
      * @param audioPlaylist The playlist queued
      * @param queuedBy      The member who queued the playlist
      */
-    public synchronized void queue(AudioPlaylist audioPlaylist, Member queuedBy) {
-        for (AudioTrack audio : audioPlaylist.getTracks()) {
-            queue.add(new MusicTrack(audio, queuedBy));
-        }
+    public synchronized void queue(
+            AudioPlaylist audioPlaylist,
+            Member queuedBy,
+            Consumer<List<MusicTrack>> postHook
+    ) {
+        List<MusicTrack> tracks = audioPlaylist
+                .getTracks()
+                .stream()
+                .map(audio -> new MusicTrack(audio, queuedBy))
+                .toList();
+		queue.addAll(tracks);
         if (player.getPlayingTrack() == null) {
             playNext();
         }
+        postHook.accept(tracks);
         listener.onMusicEvent(new PlaylistQueuedEvent(audioPlaylist, queuedBy));
     }
 
     /**
      * Plays the next track.
      */
-    public synchronized void playNext() {
-        if (repeat == Repeat.REPEAT_SONG) {
+    private synchronized void playNext() {
+        if (currentlyPlaying != null && repeat == Repeat.REPEAT_SONG) {
             currentlyPlaying = currentlyPlaying.copy();
         } else {
             MusicTrack lastPlayed = currentlyPlaying;
             currentlyPlaying = queue.remove(shuffle ? random.nextInt(queue.size()) : 0);
-            if (repeat == Repeat.REPEAT_QUEUE) {
+            if (lastPlayed != null && repeat == Repeat.REPEAT_QUEUE) {
                 queue.add(lastPlayed.copy());
             }
         }
         player.playTrack(currentlyPlaying.getAudio());
+    }
+
+    /**
+     * Removes tracks from the queue.
+     *
+     * @param toRemove A list of music tracks to remove
+     */
+    public void remove(List<MusicTrack> toRemove) {
+        queue.removeAll(toRemove);
+        if (toRemove.contains(currentlyPlaying)) {
+            player.stopTrack();
+        }
+        listener.onMusicEvent(new UndoQueuedEvent());
+    }
+
+    /**
+     * Removes songs from {@code startIndex} to {@code endIndex}.
+     * All indexes in this method are treated as user input,
+     * meaning {@code 1} is the 1st element of the queue, and {@code queue.size()} is the last.
+     * All indexes are also inclusive.
+     *
+     * @param startIndex The start index to remove songs from. Will be clamped to fit the queue size
+     * @param endIndex The end index to remove songs to. Will be clamped to fit the queue size
+     * @param removedBy The member that removed the songs
+     * @param postHook A post-operation hook, with the clamped start & end values
+     */
+    public void remove(
+            int startIndex,
+            int endIndex,
+            Member removedBy,
+            BiConsumer<Integer, Integer> postHook
+    ) {
+        int startIndexClamped = Math.clamp((long) startIndex - 1, 0, queue.size() - 1);
+        int endIndexClamped = Math.clamp((long) endIndex - 1, 0, queue.size() - 1);
+        if (startIndexClamped > endIndexClamped) {
+            throw new IllegalArgumentException(
+                    "\"startIndex\" cannot be greater than \"endIndex\""
+            );
+        } else if (startIndexClamped == endIndexClamped) {
+            queue.remove(startIndexClamped - 1);
+        } else {
+            queue.removeIf(track -> {
+                int index = queue.indexOf(track);
+                return index >= (startIndexClamped - 1) && index <= (endIndexClamped - 1);
+            });
+        }
+        if (startIndexClamped == 0) {
+            player.stopTrack();
+        }
+        postHook.accept(startIndexClamped + 1, endIndexClamped + 1);
+        listener.onMusicEvent(new TracksRemovedEvent(removedBy));
     }
 
     /**

@@ -24,10 +24,14 @@ import java.util.logging.Logger;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
+import no.smileyface.discordbot.commands.music.PlayAction;
+import no.smileyface.discordbot.model.MusicTrack;
 import no.smileyface.discordbot.model.TrackQueue;
 import no.smileyface.discordbot.model.intermediary.events.BotJoinedEvent;
 import no.smileyface.discordbot.view.TrackQueueMessage;
@@ -133,8 +137,13 @@ public class MusicManager {
 	 * @param hook       The {@link InteractionHook} to used when responding to the command
 	 *                   that queued the audio.
 	 */
-	public void queue(String identifier, Member queuedBy, InteractionHook hook) {
-		playerManager.loadItem(identifier, new AudioLoadHandler(queuedBy, hook));
+	public void queue(
+			String identifier,
+			PlayAction.UndoContextButton undoButton,
+			Member queuedBy,
+			InteractionHook hook
+	) {
+		playerManager.loadItem(identifier, new Queuer(queuedBy, undoButton, hook));
 	}
 
 	/**
@@ -145,17 +154,49 @@ public class MusicManager {
 	 * @param hook        The {@link InteractionHook} to used when responding to the command
 	 *                    that queued the audios
 	 */
-	public void queueMultiple(List<String> identifiers, Member queuedBy, InteractionHook hook) {
+	public void queueMultiple(
+			List<String> identifiers,
+			PlayAction.UndoContextButton undoButton,
+			Member queuedBy,
+			InteractionHook hook
+	) {
 		CompletableFuture.runAsync(() -> {
 			TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
-			AudioLoadHandler audioLoadHandler = new AudioLoadHandler(queuedBy, identifiers.size());
+			Queuer queuer =
+					new Queuer(queuedBy, undoButton, hook, identifiers.size());
 			identifiers.forEach(identifier -> playerManager.loadItemOrdered(
-					queue, identifier, audioLoadHandler
+					queue, identifier, queuer
 			));
 		});
-		hook.sendMessage("Your songs / videos / playlists are being queued! "
-				+ "(This may take a while)\nThe queue will update once all songs are queued "
-				+ "(Any not found will be skipped)").queue();
+	}
+
+	public void remove(List<MusicTrack> toRemove, Guild guild) {
+		queues.get(guild.getIdLong()).remove(toRemove);
+	}
+
+	/**
+	 * Removes songs from {@code startIndex} to {@code endIndex}.
+	 * All indexes in this method are treated as user input,
+	 * meaning {@code 1} is the 1st element of the queue, and {@code queue.size()} is the last.
+	 * All indexes are also inclusive.
+	 *
+	 * @param startIndex The start index to remove songs from. Will be clamped to fit the queue size
+	 * @param endIndex The end index to remove songs to. Will be clamped to fit the queue size
+	 * @param removedBy The member that removed the songs
+	 * @param postHook A post-operation hook, with the clamped start & end values
+	 */
+	public void remove(
+			int startIndex,
+			int endIndex,
+			Member removedBy,
+			BiConsumer<Integer, Integer> postHook
+	) {
+		queues.get(removedBy.getGuild().getIdLong()).remove(
+				startIndex,
+				endIndex,
+				removedBy,
+				postHook
+		);
 	}
 
 	/**
@@ -283,43 +324,102 @@ public class MusicManager {
 		queues.get(guild.getIdLong()).showPlayerMessage();
 	}
 
-	private class AudioLoadHandler implements AudioLoadResultHandler {
+	private class Queuer implements AudioLoadResultHandler {
 		private final TrackQueue queue;
 		private final Member queuedBy;
+		private final PlayAction.UndoContextButton undoButton;
 		private final InteractionHook hook;
 		private final List<AudioItem> loadedAudios;
 		private final int numberOfQueues;
 
-		private AudioLoadHandler(Member queuedBy, InteractionHook hook, int numberOfQueues) {
+		private int foundCounter;
+		private int notFoundCounter;
+		private int failedCounter;
+		private long lastMessageUpdate;
+		private String baseResponse;
+
+		private Queuer(
+				Member queuedBy,
+				PlayAction.UndoContextButton undoButton,
+				InteractionHook hook,
+				int numberOfQueues
+		) {
 			this.queue = queues.get(queuedBy.getGuild().getIdLong());
 			this.queuedBy = queuedBy;
+			this.undoButton = undoButton;
 			this.hook = hook;
 			this.loadedAudios = new ArrayList<>();
-
 			this.numberOfQueues = numberOfQueues;
+
+			this.foundCounter = 0;
+			this.notFoundCounter = 0;
+			this.failedCounter = 0;
+			this.lastMessageUpdate = Long.MIN_VALUE;
+			this.baseResponse = "Your songs / videos / playlists are being queued! "
+					+ "(This may take a while)\nThe queue will update once all songs are queued";
+
+			if (numberOfQueues > 1) {
+				hook.sendMessage(baseResponse).queue();
+				this.lastMessageUpdate = System.nanoTime();
+			}
 		}
 
-		public AudioLoadHandler(Member queuedBy, InteractionHook hook) {
-			this(queuedBy, hook, 1);
+		public Queuer(
+				Member queuedBy,
+				PlayAction.UndoContextButton undoButton,
+				InteractionHook hook
+		) {
+			this(queuedBy, undoButton, hook, 1);
 		}
 
-		public AudioLoadHandler(Member queuedBy, int numberOfQueues) {
-			this(queuedBy, null, numberOfQueues);
+		private void checkAllTracksLoaded() {
+			boolean done = false;
+			if ((foundCounter + notFoundCounter + failedCounter)
+					>= numberOfQueues && !loadedAudios.isEmpty()
+			) {
+				queue.queue(loadedAudios, queuedBy, undoButton::addTracksToUndo);
+				this.baseResponse = "All songs / playlists / videos queued!";
+				done = true;
+			}
+
+			long timeNow = System.nanoTime();
+			if (!hook.isExpired()
+					&& (done || timeNow > (lastMessageUpdate + 3e9))
+			) {
+				StringBuilder response = new StringBuilder(baseResponse);
+				if (foundCounter > 0) {
+					response.append("\n- Successfully queued: ").append(foundCounter);
+				}
+				if (notFoundCounter > 0) {
+					response.append("\n- Not found: ").append(notFoundCounter);
+				}
+				if (failedCounter > 0) {
+					response.append("\n- Failed to queue: ").append(failedCounter);
+				}
+				WebhookMessageEditAction<Message> editAction =
+						hook.editOriginal(response.toString());
+				if (done) {
+					editAction.setActionRow(undoButton);
+				}
+				editAction.queue();
+				lastMessageUpdate = timeNow;
+			}
 		}
 
 		private void loadAnotherAudio(AudioItem item) {
 			loadedAudios.add(item);
-			if (loadedAudios.size() >= numberOfQueues) {
-				queue.queue(loadedAudios, queuedBy);
-			}
+			foundCounter++;
+			checkAllTracksLoaded();
 		}
 
 		@Override
 		public void trackLoaded(AudioTrack audio) {
 			if (numberOfQueues == 1) {
-				queue.queue(audio, queuedBy);
+				queue.queue(audio, queuedBy, undoButton::addTracksToUndo);
 				if (hook != null && !hook.isExpired()) {
-					hook.sendMessage("Song/video added to queue: " + audio.getInfo().title).queue();
+					hook.sendMessage("Song/video added to queue: " + audio.getInfo().title)
+							.addActionRow(undoButton)
+							.queue();
 				}
 			} else {
 				loadAnotherAudio(audio);
@@ -331,7 +431,7 @@ public class MusicManager {
 			if (playlist.isSearchResult()) {
 				trackLoaded(playlist.getTracks().getFirst());
 			} else if (numberOfQueues == 1) {
-				queue.queue(playlist, queuedBy);
+				queue.queue(playlist, queuedBy, undoButton::addTracksToUndo);
 				if (hook != null && !hook.isExpired()) {
 					hook.sendMessage("Playlist added to queue: " + playlist.getName()).queue();
 				}
@@ -342,14 +442,20 @@ public class MusicManager {
 
 		@Override
 		public void noMatches() {
-			if (hook != null && !hook.isExpired()) {
+			if (numberOfQueues > 1) {
+				notFoundCounter++;
+				checkAllTracksLoaded();
+			} else if (hook != null && !hook.isExpired()) {
 				hook.sendMessage("Couldn't find song/video/playlist").queue();
 			}
 		}
 
 		@Override
 		public void loadFailed(FriendlyException fe) {
-			if (!fe.severity.equals(FriendlyException.Severity.COMMON)) {
+			if (numberOfQueues > 1) {
+				failedCounter++;
+				checkAllTracksLoaded();
+			} else if (!fe.severity.equals(FriendlyException.Severity.COMMON)) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING,
 						"Audio load failed", fe
 				);
