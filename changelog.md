@@ -1,5 +1,11 @@
 # Changelog:
 
+v1.6.3:
+<br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
+- Modified: Changed response text of `--newBotAnnouncement` to give accurate feedback
+- Modified: Updated `lavaplayer` to version `2.2.1`
+- Modified: Updated `v2` (`youtube-course`) to version `1.4.0`
+
 v1.6.2:
 - Added: Context buttons
 - Added: Undo context button, attached to the response after queuing a song
@@ -35,7 +41,6 @@ v1.6.0:
 - Removed: Player message buttons. The backend logic will receive an extensive to make these work again
 
 v1.5.4
-<br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
 - Modified: Updated `lavaplayer` to version `0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT`.
   This will be changed to a more stable version once a stable version that works is released
 

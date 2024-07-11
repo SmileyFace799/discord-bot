@@ -44,7 +44,7 @@ public class InputListener extends ActionManager {
 						)
 				);
 				message
-						.reply("Announcing this to the owner of every guild the bot is in")
+						.reply("Message has been announced!")
 						.queue();
 			} catch (IOException ioe) {
 				message.reply("IOException occurred: " + ioe.getMessage()).queue();
