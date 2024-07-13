@@ -1,7 +1,7 @@
 package no.smileyface.discordbot.files;
 
 import java.io.IOException;
-import no.smileyface.discordbot.files.generic.LongCollectionFileInterface;
+import no.smileyface.discordbotframework.files.LongCollectionFileInterface;
 
 /**
  * File interface for announcement whitelist file.

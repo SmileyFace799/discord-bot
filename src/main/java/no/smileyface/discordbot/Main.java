@@ -9,25 +9,28 @@ import java.util.Set;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import no.smileyface.discordbot.commands.feedback.KnownIssuesAction;
-import no.smileyface.discordbot.commands.feedback.ReportIssueAction;
-import no.smileyface.discordbot.commands.misc.CreditsAction;
-import no.smileyface.discordbot.commands.misc.FeaturesAction;
-import no.smileyface.discordbot.commands.misc.NotifyAction;
-import no.smileyface.discordbot.commands.misc.PingAction;
-import no.smileyface.discordbot.commands.misc.SayAction;
-import no.smileyface.discordbot.commands.music.GoToPageAction;
-import no.smileyface.discordbot.commands.music.JoinAction;
-import no.smileyface.discordbot.commands.music.LeaveAction;
-import no.smileyface.discordbot.commands.music.PlayAction;
-import no.smileyface.discordbot.commands.music.RemoveAction;
-import no.smileyface.discordbot.commands.music.RepeatAction;
-import no.smileyface.discordbot.commands.music.ResumePauseAction;
-import no.smileyface.discordbot.commands.music.ShowPlayerAction;
-import no.smileyface.discordbot.commands.music.ShuffleAction;
-import no.smileyface.discordbot.commands.music.SkipAction;
-import no.smileyface.discordbot.commands.music.modalcreator.GoToPageModalCreator;
-import no.smileyface.discordbot.commands.music.modalcreator.QueueSongModalCreator;
+import no.smileyface.discordbot.actions.feedback.KnownIssuesAction;
+import no.smileyface.discordbot.actions.feedback.ReportIssueAction;
+import no.smileyface.discordbot.actions.misc.CreditsAction;
+import no.smileyface.discordbot.actions.misc.FeaturesAction;
+import no.smileyface.discordbot.actions.misc.NotifyAction;
+import no.smileyface.discordbot.actions.misc.PingAction;
+import no.smileyface.discordbot.actions.misc.SayAction;
+import no.smileyface.discordbot.actions.music.GoToPageAction;
+import no.smileyface.discordbot.actions.music.JoinAction;
+import no.smileyface.discordbot.actions.music.LeaveAction;
+import no.smileyface.discordbot.actions.music.PlayAction;
+import no.smileyface.discordbot.actions.music.RemoveAction;
+import no.smileyface.discordbot.actions.music.RepeatAction;
+import no.smileyface.discordbot.actions.music.ResumePauseAction;
+import no.smileyface.discordbot.actions.music.ShowPlayerAction;
+import no.smileyface.discordbot.actions.music.ShuffleAction;
+import no.smileyface.discordbot.actions.music.SkipAction;
+import no.smileyface.discordbot.actions.music.modalcreator.GoToPageModalCreator;
+import no.smileyface.discordbot.actions.music.modalcreator.QueueSongModalCreator;
+import no.smileyface.discordbot.files.properties.PropertyLoadException;
+import no.smileyface.discordbot.files.properties.PropertyNode;
+import no.smileyface.discordbot.model.querying.QueryParser;
 import no.smileyface.discordbotframework.DiscordBot;
 
 /**
@@ -41,19 +44,25 @@ public class Main {
 	 * @throws NoSuchFileException  If the token file for the active bot is not found
 	 * @throws InterruptedException If the bot is interrupted while starting
 	 */
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(
+			String[] args
+	) throws IOException, InterruptedException, PropertyLoadException {
 		try {
 			Files.createDirectory(Path.of("botFiles"));
 
 		} catch (FileAlreadyExistsException ignored) {
 			// Folder exists, all good
 		}
-		JDA jda = DiscordBot.create(new InputListener(Set.of(
+		PropertyNode.loadTree();
+		QueryParser queryParser = new QueryParser();
+		PropertyNode botNode = PropertyNode.getRoot().getChild("bot");
+		String botToken = botNode.getChild(botNode.getChild("active").getValue()).getValue();
+		JDA jda = DiscordBot.create(botToken, new InputListener(Set.of(
 				// Music
 				new GoToPageAction(),
 				new JoinAction(),
 				new LeaveAction(),
-				new PlayAction(),
+				new PlayAction(queryParser),
 				new RemoveAction(),
 				new RepeatAction(),
 				new ResumePauseAction(),
@@ -65,7 +74,7 @@ public class Main {
 				new ReportIssueAction(),
 				// Misc
 				new CreditsAction(),
-				new FeaturesAction(),
+				new FeaturesAction(queryParser),
 				new NotifyAction(),
 				new PingAction(),
 				new SayAction(),

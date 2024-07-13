@@ -1,5 +1,12 @@
 # Changelog:
 
+v1.7.0:
+- Added: Deezer support
+- Modified: Rewrite on song queuing logic & implementation of external APIs
+- Modified: Generic file interfaces moved to `discord-bot-framework` dependency
+- Modified: Token files moved into a single .properties file
+- Modified: Renamed `commands` package to `actions`
+
 v1.6.3:
 <br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
 - Modified: Changed response text of `--newBotAnnouncement` to give accurate feedback

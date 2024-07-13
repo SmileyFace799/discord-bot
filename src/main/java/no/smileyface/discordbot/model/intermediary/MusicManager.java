@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
-import no.smileyface.discordbot.commands.music.PlayAction;
+import no.smileyface.discordbot.actions.music.PlayAction;
 import no.smileyface.discordbot.model.MusicTrack;
 import no.smileyface.discordbot.model.TrackQueue;
 import no.smileyface.discordbot.model.intermediary.events.BotJoinedEvent;
@@ -149,21 +149,23 @@ public class MusicManager {
 	/**
 	 * Loads multiple tracks / playlists.
 	 *
-	 * @param identifiers The unique identifiers for each track / playlist
-	 * @param queuedBy    The member who queued the audios
-	 * @param hook        The {@link InteractionHook} to used when responding to the command
-	 *                    that queued the audios
+	 * @param identifiers         The unique identifiers for each track / playlist
+	 * @param queuedBy            The member who queued the audios
+	 * @param hook                The {@link InteractionHook} to used when responding to the command
+	 *                            that queued the audios
+	 * @param amountFailedToParse The amount of queries that failed parsing
 	 */
 	public void queueMultiple(
 			List<String> identifiers,
 			PlayAction.UndoContextButton undoButton,
 			Member queuedBy,
-			InteractionHook hook
+			InteractionHook hook,
+			int amountFailedToParse
 	) {
 		CompletableFuture.runAsync(() -> {
 			TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
 			Queuer queuer =
-					new Queuer(queuedBy, undoButton, hook, identifiers.size());
+					new Queuer(queuedBy, undoButton, hook, identifiers.size(), amountFailedToParse);
 			identifiers.forEach(identifier -> playerManager.loadItemOrdered(
 					queue, identifier, queuer
 			));
@@ -181,9 +183,9 @@ public class MusicManager {
 	 * All indexes are also inclusive.
 	 *
 	 * @param startIndex The start index to remove songs from. Will be clamped to fit the queue size
-	 * @param endIndex The end index to remove songs to. Will be clamped to fit the queue size
-	 * @param removedBy The member that removed the songs
-	 * @param postHook A post-operation hook, with the clamped start & end values
+	 * @param endIndex   The end index to remove songs to. Will be clamped to fit the queue size
+	 * @param removedBy  The member that removed the songs
+	 * @param postHook   A post-operation hook, with the clamped start & end values
 	 */
 	public void remove(
 			int startIndex,
@@ -300,7 +302,7 @@ public class MusicManager {
 	/**
 	 * Stops the music in a guild, and destroys the player, if it exists.
 	 *
-	 * @param guild     The guild to stop music in
+	 * @param guild The guild to stop music in
 	 * @return If the player existed & was subsequently destroyed
 	 * @see #stop(Member)
 	 */
@@ -331,6 +333,7 @@ public class MusicManager {
 		private final InteractionHook hook;
 		private final List<AudioItem> loadedAudios;
 		private final int numberOfQueues;
+		private final int amountFailedToParse;
 
 		private int foundCounter;
 		private int notFoundCounter;
@@ -342,7 +345,8 @@ public class MusicManager {
 				Member queuedBy,
 				PlayAction.UndoContextButton undoButton,
 				InteractionHook hook,
-				int numberOfQueues
+				int numberOfQueues,
+				int amountFailedToParse
 		) {
 			this.queue = queues.get(queuedBy.getGuild().getIdLong());
 			this.queuedBy = queuedBy;
@@ -350,6 +354,7 @@ public class MusicManager {
 			this.hook = hook;
 			this.loadedAudios = new ArrayList<>();
 			this.numberOfQueues = numberOfQueues;
+			this.amountFailedToParse = amountFailedToParse;
 
 			this.foundCounter = 0;
 			this.notFoundCounter = 0;
@@ -369,7 +374,7 @@ public class MusicManager {
 				PlayAction.UndoContextButton undoButton,
 				InteractionHook hook
 		) {
-			this(queuedBy, undoButton, hook, 1);
+			this(queuedBy, undoButton, hook, 1, 0);
 		}
 
 		private void checkAllTracksLoaded() {
@@ -392,6 +397,9 @@ public class MusicManager {
 				}
 				if (notFoundCounter > 0) {
 					response.append("\n- Not found: ").append(notFoundCounter);
+				}
+				if (amountFailedToParse > 0) {
+					response.append("\n- Failed to parse: ").append(amountFailedToParse);
 				}
 				if (failedCounter > 0) {
 					response.append("\n- Failed to queue: ").append(failedCounter);

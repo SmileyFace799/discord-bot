@@ -1,10 +1,12 @@
 #Ignore:
+dependency-reduced-pom.xml
 *.iml
 .idea/
 target/
 tokens/
 lib/
 *.txt
-dependency-reduced-pom.xml
 host_connect.*
 botFiles/
+*.properties
+!Properties Templates/
