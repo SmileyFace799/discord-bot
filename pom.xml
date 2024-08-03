@@ -6,7 +6,7 @@
 
     <groupId>no.smileyface</groupId>
     <artifactId>discord-bot</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>v2</artifactId>
-            <version>1.4.0</version>
+            <version>1.5.1</version>
         </dependency>
         <dependency>
             <groupId>se.michaelthelin.spotify</groupId>

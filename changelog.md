@@ -1,5 +1,9 @@
 # Changelog:
 
+v1.7.1:
+<br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
+- Modified: Updated `v2` (`youtube-course`) to version `1.5.1`
+
 v1.7.0:
 - Added: Deezer support
 - Modified: Rewrite on song queuing logic & implementation of external APIs
@@ -8,7 +12,6 @@ v1.7.0:
 - Modified: Renamed `commands` package to `actions`
 
 v1.6.3:
-<br/>**NB: Older versions are no longer able to play YouTube or Spotify audio**
 - Modified: Changed response text of `--newBotAnnouncement` to give accurate feedback
 - Modified: Updated `lavaplayer` to version `2.2.1`
 - Modified: Updated `v2` (`youtube-course`) to version `1.4.0`
