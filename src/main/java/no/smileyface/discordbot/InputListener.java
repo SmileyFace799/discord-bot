@@ -1,29 +1,24 @@
 package no.smileyface.discordbot;
 
 import java.io.IOException;
-import java.util.Collection;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import no.smileyface.discordbot.files.AnnouncementWhitelist;
+import no.smileyface.discordbotframework.ActionInitializer;
 import no.smileyface.discordbotframework.ActionManager;
-import no.smileyface.discordbotframework.entities.BotAction;
 
 /**
  * Input listener for the music bot.
  */
 public class InputListener extends ActionManager {
-	private User cachedBotOwner = null;
+	private User cachedBotOwner;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param actions The collection of actions that the bot can perform.
-	 */
-	public InputListener(Collection<? extends BotAction<? extends BotAction.ArgKey>> actions) {
-		super(actions);
+	public InputListener(ActionInitializer actionInitializer) {
+		super(actionInitializer);
+		this.cachedBotOwner = null;
 	}
 
 	private void announce(Message message, MessageReceivedEvent originalEvent) {

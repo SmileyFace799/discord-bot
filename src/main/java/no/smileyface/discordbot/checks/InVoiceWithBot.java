@@ -3,7 +3,7 @@ package no.smileyface.discordbot.checks;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import no.smileyface.discordbotframework.checks.Check;
-import no.smileyface.discordbotframework.checks.ChecksFailedException;
+import no.smileyface.discordbotframework.checks.CheckFailedException;
 
 /**
  * Checks if the member who fired the event is in a voice channel with the bot.
@@ -20,10 +20,10 @@ public class InVoiceWithBot implements Check {
 	}
 
 	@Override
-	public void check(IReplyCallback event) throws ChecksFailedException {
+	public void check(IReplyCallback event) throws CheckFailedException {
 		AudioChannel audioChannel = inVoice.checkAndReturn(event);
 		if (!audioChannel.equals(audioChannel.getGuild().getAudioManager().getConnectedChannel())) {
-			throw new ChecksFailedException(
+			throw new CheckFailedException(
 					"The bot is not connected to the voice channel you're in");
 		}
 	}

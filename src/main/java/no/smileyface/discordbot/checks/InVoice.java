@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import no.smileyface.discordbotframework.checks.CheckAndReturn;
-import no.smileyface.discordbotframework.checks.ChecksFailedException;
+import no.smileyface.discordbotframework.checks.CheckFailedException;
 import no.smileyface.discordbotframework.checks.InGuild;
 
 /**
@@ -24,12 +24,12 @@ public class InVoice implements CheckAndReturn<AudioChannel> {
 	}
 
 	@Override
-	public AudioChannel checkAndReturn(IReplyCallback event) throws ChecksFailedException {
+	public AudioChannel checkAndReturn(IReplyCallback event) throws CheckFailedException {
 		GuildVoiceState authorVoiceState = Objects.requireNonNull(
 				inGuild.checkAndReturn(event).getVoiceState());
 
 		if (!authorVoiceState.inAudioChannel()) {
-			throw new ChecksFailedException("You're not in a voice channel");
+			throw new CheckFailedException("You're not in a voice channel");
 		}
 		return Objects.requireNonNull(authorVoiceState.getChannel());
 	}

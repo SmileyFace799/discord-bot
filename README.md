@@ -98,3 +98,9 @@ A token file is a plain text file with a bot token inside it.</p>
     However, the bot can parse info from a Deezer link, to then find & play the equivalent song(s) using a different service (currently YouTube).
 </p>
 <p>As the Deezer API currently doesn't require any authentication, support for this is enabled by default</p>
+
+<h3>Song lyrics with Genius (v1.8.0+):</h3>
+<p>
+    This does not actually use the Genius API, and instead uses an obscure library that scrapes a genius website for song lyrics.
+    This means that no authentication is required, but if this ever breaks, the bot will switch to using the actual Genius API, which will require authentication
+</p>

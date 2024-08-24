@@ -2,9 +2,10 @@ package no.smileyface.discordbot.model.apis;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import no.smileyface.discordbot.files.properties.PropertyNode;
+import no.smileyface.discordbot.Properties;
 import no.smileyface.discordbot.model.apis.generic.ApiConsumer;
 import no.smileyface.discordbot.model.apis.generic.ApiContainer;
+import no.smileyface.discordbotframework.data.Node;
 import org.apache.hc.core5.http.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class SpotifyContainer implements ApiContainer<SpotifyApi> {
      * Constructor.
      */
     public SpotifyContainer() {
-        PropertyNode spotifyNode = PropertyNode.getRoot()
+        Node<String, String> spotifyNode = Properties
                 .getChild("token")
                 .getChild("spotify");
         String id = spotifyNode.getChild("id").getValue();

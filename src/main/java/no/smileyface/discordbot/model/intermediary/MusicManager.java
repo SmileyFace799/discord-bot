@@ -35,7 +35,7 @@ import no.smileyface.discordbot.model.MusicTrack;
 import no.smileyface.discordbot.model.TrackQueue;
 import no.smileyface.discordbot.model.intermediary.events.BotJoinedEvent;
 import no.smileyface.discordbot.view.TrackQueueMessage;
-import no.smileyface.discordbotframework.InputRecord;
+import no.smileyface.discordbotframework.Identifier;
 
 /**
  * Responsible for creating audio players & queuing songs to them.
@@ -73,14 +73,14 @@ public class MusicManager {
 	 * @param playerChannel The channel where the player should be created.
 	 *                      This is not the audio channel the bot is playing in,
 	 *                      but the text channel where
-	 * @param inputs        User inputs that the audio player may use
+	 * @param identifier    An identifier the player may use to find user inputs
 	 * @param createdBy     The member who created the audio player
-	 * @see #createPlayerIfNotExists(AudioChannel, GuildMessageChannel, InputRecord, Member)
+	 * @see #createPlayerIfNotExists(AudioChannel, GuildMessageChannel, Identifier, Member)
 	 */
 	public void createPlayer(
 			AudioChannel audioChannel,
 			GuildMessageChannel playerChannel,
-			InputRecord inputs,
+			Identifier identifier,
 			Member createdBy
 	) {
 		AudioManager audioManager = audioChannel.getGuild().getAudioManager();
@@ -93,7 +93,7 @@ public class MusicManager {
 		audioManager.openAudioConnection(audioChannel);
 
 		TrackQueue queue = new TrackQueue(player, playerChannel);
-		TrackQueueMessage message = new TrackQueueMessage(queue, inputs);
+		TrackQueueMessage message = new TrackQueueMessage(queue, identifier);
 		queue.setListener(message);
 		if (createdBy != null) {
 			message.onMusicEvent(new BotJoinedEvent(createdBy));
@@ -108,18 +108,18 @@ public class MusicManager {
 	 * @param playerChannel The channel where the player should be created.
 	 *                      This is not the audio channel the bot is playing in,
 	 *                      but the text channel where
-	 * @param inputs        User inputs that the audio player may use
+	 * @param identifier    An identifier the player may use to find user inputs
 	 * @param createdBy     The member who created the audio player
-	 * @see #createPlayer(AudioChannel, GuildMessageChannel, InputRecord, Member)
+	 * @see #createPlayer(AudioChannel, GuildMessageChannel, Identifier, Member)
 	 */
 	public void createPlayerIfNotExists(
 			AudioChannel audioChannel,
 			GuildMessageChannel playerChannel,
-			InputRecord inputs,
+			Identifier identifier,
 			Member createdBy
 	) {
 		try {
-			createPlayer(audioChannel, playerChannel, inputs, createdBy);
+			createPlayer(audioChannel, playerChannel, identifier, createdBy);
 		} catch (IllegalStateException ise) {
 			// Do nothing
 		}
@@ -127,6 +127,23 @@ public class MusicManager {
 
 	public TrackQueue getQueue(long guildId) {
 		return queues.get(guildId);
+	}
+
+	/**
+	 * Gets the currently playing music track.
+	 *
+	 * @param guild The guild to get the current track in
+	 * @return The currently playing track, if there is one. {@code null} otherwise
+	 */
+	public MusicTrack getCurrentTrack(Guild guild) {
+		MusicTrack currentTrack = null;
+		if (guild != null) {
+			TrackQueue queue = queues.get(guild.getIdLong());
+			if (queue != null) {
+				currentTrack = queue.getCurrentlyPlaying();
+			}
+		}
+		return currentTrack;
 	}
 
 	/**
@@ -139,11 +156,11 @@ public class MusicManager {
 	 */
 	public void queue(
 			String identifier,
-			PlayAction.UndoContextButton undoButton,
+			PlayAction.UndoContextAction undoAction,
 			Member queuedBy,
 			InteractionHook hook
 	) {
-		playerManager.loadItem(identifier, new Queuer(queuedBy, undoButton, hook));
+		playerManager.loadItem(identifier, new Queuer(queuedBy, undoAction, hook));
 	}
 
 	/**
@@ -157,7 +174,7 @@ public class MusicManager {
 	 */
 	public void queueMultiple(
 			List<String> identifiers,
-			PlayAction.UndoContextButton undoButton,
+			PlayAction.UndoContextAction undoAction,
 			Member queuedBy,
 			InteractionHook hook,
 			int amountFailedToParse
@@ -165,7 +182,7 @@ public class MusicManager {
 		CompletableFuture.runAsync(() -> {
 			TrackQueue queue = queues.get(queuedBy.getGuild().getIdLong());
 			Queuer queuer =
-					new Queuer(queuedBy, undoButton, hook, identifiers.size(), amountFailedToParse);
+					new Queuer(queuedBy, undoAction, hook, identifiers.size(), amountFailedToParse);
 			identifiers.forEach(identifier -> playerManager.loadItemOrdered(
 					queue, identifier, queuer
 			));
@@ -329,7 +346,7 @@ public class MusicManager {
 	private class Queuer implements AudioLoadResultHandler {
 		private final TrackQueue queue;
 		private final Member queuedBy;
-		private final PlayAction.UndoContextButton undoButton;
+		private final PlayAction.UndoContextAction undoAction;
 		private final InteractionHook hook;
 		private final List<AudioItem> loadedAudios;
 		private final int numberOfQueues;
@@ -343,14 +360,14 @@ public class MusicManager {
 
 		private Queuer(
 				Member queuedBy,
-				PlayAction.UndoContextButton undoButton,
+				PlayAction.UndoContextAction undoAction,
 				InteractionHook hook,
 				int numberOfQueues,
 				int amountFailedToParse
 		) {
 			this.queue = queues.get(queuedBy.getGuild().getIdLong());
 			this.queuedBy = queuedBy;
-			this.undoButton = undoButton;
+			this.undoAction = undoAction;
 			this.hook = hook;
 			this.loadedAudios = new ArrayList<>();
 			this.numberOfQueues = numberOfQueues;
@@ -371,10 +388,10 @@ public class MusicManager {
 
 		public Queuer(
 				Member queuedBy,
-				PlayAction.UndoContextButton undoButton,
+				PlayAction.UndoContextAction undoAction,
 				InteractionHook hook
 		) {
-			this(queuedBy, undoButton, hook, 1, 0);
+			this(queuedBy, undoAction, hook, 1, 0);
 		}
 
 		private void checkAllTracksLoaded() {
@@ -382,7 +399,7 @@ public class MusicManager {
 			if ((foundCounter + notFoundCounter + failedCounter)
 					>= numberOfQueues && !loadedAudios.isEmpty()
 			) {
-				queue.queue(loadedAudios, queuedBy, undoButton::addTracksToUndo);
+				queue.queue(loadedAudios, queuedBy, undoAction::addTracksToUndo);
 				this.baseResponse = "All songs / playlists / videos queued!";
 				done = true;
 			}
@@ -407,7 +424,7 @@ public class MusicManager {
 				WebhookMessageEditAction<Message> editAction =
 						hook.editOriginal(response.toString());
 				if (done) {
-					editAction.setActionRow(undoButton);
+					editAction.setActionRow(undoAction.getButtons());
 				}
 				editAction.queue();
 				lastMessageUpdate = timeNow;
@@ -423,10 +440,10 @@ public class MusicManager {
 		@Override
 		public void trackLoaded(AudioTrack audio) {
 			if (numberOfQueues == 1) {
-				queue.queue(audio, queuedBy, undoButton::addTracksToUndo);
+				queue.queue(audio, queuedBy, undoAction::addTracksToUndo);
 				if (hook != null && !hook.isExpired()) {
 					hook.sendMessage("Song/video added to queue: " + audio.getInfo().title)
-							.addActionRow(undoButton)
+							.addActionRow(undoAction.getButtons())
 							.queue();
 				}
 			} else {
@@ -439,7 +456,7 @@ public class MusicManager {
 			if (playlist.isSearchResult()) {
 				trackLoaded(playlist.getTracks().getFirst());
 			} else if (numberOfQueues == 1) {
-				queue.queue(playlist, queuedBy, undoButton::addTracksToUndo);
+				queue.queue(playlist, queuedBy, undoAction::addTracksToUndo);
 				if (hook != null && !hook.isExpired()) {
 					hook.sendMessage("Playlist added to queue: " + playlist.getName()).queue();
 				}

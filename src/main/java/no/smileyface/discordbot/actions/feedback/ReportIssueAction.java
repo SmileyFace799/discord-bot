@@ -10,75 +10,34 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import no.smileyface.discordbotframework.InputRecord;
-import no.smileyface.discordbotframework.entities.ActionCommand;
+import no.smileyface.discordbot.actions.feedback.commands.ReportIssueCommand;
+import no.smileyface.discordbotframework.ActionManager;
+import no.smileyface.discordbotframework.data.Node;
 import no.smileyface.discordbotframework.entities.BotAction;
-import no.smileyface.discordbotframework.misc.MultiTypeMap;
 
 /**
  * Reports an issue with the bot to "me" (bot author).
  */
-public class ReportIssueAction extends BotAction<ReportIssueAction.ReportIssueKey> {
+public class ReportIssueAction extends BotAction<ReportIssueAction.Key> {
 	private static final Collection<Long> REPORT_BLACKLIST = Set.of(); //No one, yet :)
 
 	private final Map<Long, LocalDateTime> reportCoolDowns;
 
-	private static class ReportIssueCommand extends ActionCommand<ReportIssueKey> {
-		public ReportIssueCommand() {
-			super(Commands
-					.slash(
-							"reportissue",
-							"Report an issue with the bot. "
-									+ "NB: Make sure to check /knownissues first"
-					)
-					.addOption(
-							OptionType.STRING,
-							ReportIssueKey.TOPIC.str(),
-							"The topic of your issue",
-							true
-					).addOption(
-							OptionType.STRING,
-							ReportIssueKey.DETAILS.str(),
-							"The full details of your issue, "
-									+ "including instructions on how to reproduce it", true
-					)
-			);
-		}
-
-		@Override
-		public MultiTypeMap<ReportIssueKey> getSlashArgs(SlashCommandInteractionEvent event) {
-			MultiTypeMap<ReportIssueKey> args = new MultiTypeMap<>();
-			args.put(ReportIssueKey.TOPIC, event.getOption(
-					ReportIssueKey.TOPIC.str(),
-					OptionMapping::getAsString
-			));
-			args.put(ReportIssueKey.DETAILS, event.getOption(
-					ReportIssueKey.DETAILS.str(),
-					OptionMapping::getAsString
-			));
-			return args;
-		}
-	}
-
 	/**
 	 * Makes the report issue command.
 	 */
-	public ReportIssueAction() {
-		super(new ReportIssueCommand());
+	public ReportIssueAction(ActionManager manager) {
+		super(manager, new ReportIssueCommand());
 		reportCoolDowns = new HashMap<>();
 	}
 
 	@Override
 	protected void execute(
 			IReplyCallback event,
-			MultiTypeMap<ReportIssueKey> args,
-			InputRecord inputs
+			Node<Key, Object> args
 	) {
-		String topic = args.get(ReportIssueKey.TOPIC, String.class);
-		String details = args.get(ReportIssueKey.DETAILS, String.class);
+		String topic = args.getValue(Key.TOPIC, String.class);
+		String details = args.getValue(Key.DETAILS, String.class);
 
 		JDA jda = event.getJDA();
 		User author = event.getUser();
@@ -129,7 +88,7 @@ public class ReportIssueAction extends BotAction<ReportIssueAction.ReportIssueKe
 	/**
 	 * Keys for args map.
 	 */
-	public enum ReportIssueKey implements ArgKey {
+	public enum Key implements ArgKey {
 		TOPIC,
 		DETAILS
 	}

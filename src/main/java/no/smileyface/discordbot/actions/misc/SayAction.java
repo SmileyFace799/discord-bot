@@ -1,59 +1,34 @@
 package no.smileyface.discordbot.actions.misc;
 
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import no.smileyface.discordbotframework.InputRecord;
-import no.smileyface.discordbotframework.entities.ActionCommand;
+import no.smileyface.discordbot.actions.misc.commands.SayCommand;
+import no.smileyface.discordbotframework.ActionManager;
+import no.smileyface.discordbotframework.data.Node;
 import no.smileyface.discordbotframework.entities.BotAction;
-import no.smileyface.discordbotframework.misc.MultiTypeMap;
 
 /**
  * Generic say command.
  */
-public class SayAction extends BotAction<SayAction.SayKey> {
-    private static class SayCommand extends ActionCommand<SayKey> {
-        public SayCommand() {
-            super(Commands
-                    .slash("say", "Bot will say anything you want")
-                    .addOption(OptionType.STRING, SayKey.STRING.str(),
-                            "The string of text the bot should say", true)
-            );
-        }
-
-        @Override
-        public MultiTypeMap<SayKey> getSlashArgs(SlashCommandInteractionEvent event) {
-            MultiTypeMap<SayKey> args = new MultiTypeMap<>();
-            args.put(SayKey.STRING, event.getOption(
-                    SayKey.STRING.str(),
-                    OptionMapping::getAsString
-            ));
-            return args;
-        }
-    }
-
+public class SayAction extends BotAction<SayAction.Key> {
     /**
      * Makes the say action.
      */
-    public SayAction() {
-        super(new SayCommand());
+    public SayAction(ActionManager manager) {
+        super(manager, new SayCommand());
     }
 
     @Override
     protected void execute(
             IReplyCallback event,
-            MultiTypeMap<SayKey> args,
-            InputRecord inputs
+            Node<Key, Object> args
     ) {
-        event.reply(args.get(SayKey.STRING, String.class)).queue();
+        event.reply(args.getValue(Key.STRING, String.class)).queue();
     }
 
     /**
      * Keys for args map.
      */
-    public enum SayKey implements ArgKey {
+    public enum Key implements ArgKey {
         STRING
     }
 }

@@ -1,30 +1,27 @@
 package no.smileyface.discordbot.actions.misc;
 
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import no.smileyface.discordbotframework.InputRecord;
-import no.smileyface.discordbotframework.entities.ActionCommand;
+import no.smileyface.discordbot.actions.misc.commands.PingCommand;
+import no.smileyface.discordbotframework.ActionManager;
+import no.smileyface.discordbotframework.data.Node;
 import no.smileyface.discordbotframework.entities.BotAction;
-import no.smileyface.discordbotframework.misc.MultiTypeMap;
+import no.smileyface.discordbotframework.entities.GenericBotAction;
 
 /**
  * Basic ping command.
  */
-public class PingAction extends BotAction<BotAction.ArgKey> {
+public class PingAction extends BotAction<GenericBotAction.ArgKey> {
     /**
      * Makes the ping action.
      */
-    public PingAction() {
-        super(new ActionCommand<>(Commands.slash(
-                "ping", "Bot answers with \"pong!\""
-        )));
+    public PingAction(ActionManager manager) {
+        super(manager, new PingCommand());
     }
 
     @Override
     protected void execute(
             IReplyCallback event,
-            MultiTypeMap<ArgKey> args,
-            InputRecord inputs
+            Node<ArgKey, Object> args
     ) {
         event.reply("pong!").queue();
     }

@@ -3,7 +3,7 @@ package no.smileyface.discordbot.checks;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import no.smileyface.discordbot.model.intermediary.MusicManager;
 import no.smileyface.discordbotframework.checks.Check;
-import no.smileyface.discordbotframework.checks.ChecksFailedException;
+import no.smileyface.discordbotframework.checks.CheckFailedException;
 import no.smileyface.discordbotframework.checks.InGuild;
 
 /**
@@ -22,14 +22,14 @@ public class BotIsPlaying implements Check {
 	}
 
 	@Override
-	public void check(IReplyCallback event) throws ChecksFailedException {
+	public void check(IReplyCallback event) throws CheckFailedException {
 		if (MusicManager.getInstance()
 				.getQueue(inGuild.checkAndReturn(event)
 						.getGuild()
 						.getIdLong()
 				) == null
 		) {
-			throw new ChecksFailedException("The bot is not playing any music");
+			throw new CheckFailedException("The bot is not playing any music");
 		}
 	}
 }

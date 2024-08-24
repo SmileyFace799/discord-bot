@@ -1,31 +1,27 @@
 package no.smileyface.discordbot.actions.feedback;
 
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import no.smileyface.discordbotframework.InputRecord;
-import no.smileyface.discordbotframework.entities.ActionCommand;
+import no.smileyface.discordbot.actions.feedback.commands.KnownIssuesCommand;
+import no.smileyface.discordbotframework.ActionManager;
+import no.smileyface.discordbotframework.data.Node;
 import no.smileyface.discordbotframework.entities.BotAction;
-import no.smileyface.discordbotframework.misc.MultiTypeMap;
+import no.smileyface.discordbotframework.entities.GenericBotAction;
 
 /**
  * Shows known issues with the bot.
  */
-public class KnownIssuesAction extends BotAction<BotAction.ArgKey> {
+public class KnownIssuesAction extends BotAction<GenericBotAction.ArgKey> {
     /**
      * Makes the known issues action.
      */
-    public KnownIssuesAction() {
-        super(new ActionCommand<>(Commands.slash(
-                "knownissues",
-                "A list of known issues with the bot that will not be fixed"
-        )));
+    public KnownIssuesAction(ActionManager manager) {
+        super(manager, new KnownIssuesCommand());
     }
 
     @Override
     protected void execute(
             IReplyCallback event,
-            MultiTypeMap<ArgKey> args,
-            InputRecord inputs
+            Node<ArgKey, Object> args
     ) {
         event.reply("""
                 These are all the known issues with the bot that will not be fixed.

@@ -1,114 +1,45 @@
 package no.smileyface.discordbot.actions.music;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import no.smileyface.discordbot.actions.music.buttons.GoToPageButton;
+import no.smileyface.discordbot.actions.music.buttons.ShiftPageButton;
+import no.smileyface.discordbot.actions.music.modals.GoToPageModal;
 import no.smileyface.discordbot.checks.InVoiceWithBot;
 import no.smileyface.discordbot.model.intermediary.MusicManager;
-import no.smileyface.discordbotframework.InputRecord;
-import no.smileyface.discordbotframework.entities.ActionButton;
-import no.smileyface.discordbotframework.entities.ActionModal;
+import no.smileyface.discordbotframework.ActionManager;
+import no.smileyface.discordbotframework.data.Node;
 import no.smileyface.discordbotframework.entities.BotAction;
-import no.smileyface.discordbotframework.misc.MultiTypeMap;
 
 /**
  * Navigates the music player to a specific page.
  */
-public class GoToPageAction extends BotAction<GoToPageAction.GoToPageKey> {
+public class GoToPageAction extends BotAction<GoToPageAction.Key> {
 	private static final String SHOWING_PAGE_BASE = "Showing page %s!";
 
-	private static class PrevPageButton extends ActionButton<GoToPageKey> {
-		/**
-		 * Makes the prev page action.
-		 */
-		public PrevPageButton() {
-			super(
-					ButtonStyle.PRIMARY,
-					"prevPageButton",
-					"Previous Page",
-					Emoji.fromUnicode("◀")
-			);
-		}
-
-		@Override
-		public MultiTypeMap<GoToPageKey> createArgs(ButtonInteractionEvent event) {
-			MultiTypeMap<GoToPageKey> args = new MultiTypeMap<>();
-			args.put(GoToPageKey.CHANGE, false);
-			return args;
-		}
-	}
-
-
-	private static class NextPageButton extends ActionButton<GoToPageKey> {
-		/**
-		 * Makes the next page action.
-		 */
-		public NextPageButton() {
-			super(
-					ButtonStyle.PRIMARY,
-					"nextPageButton",
-					"Next Page",
-					Emoji.fromUnicode("▶")
-			);
-		}
-
-		@Override
-		public MultiTypeMap<GoToPageKey> createArgs(ButtonInteractionEvent event) {
-			MultiTypeMap<GoToPageKey> args = new MultiTypeMap<>();
-			args.put(GoToPageKey.CHANGE, true);
-			return args;
-		}
-	}
-
-	private static class GoToPageModal extends ActionModal<GoToPageKey> {
-		/**
-		 * Makes the modal.
-		 */
-		public GoToPageModal() {
-			super("goToPageModal", "Go To Page...", List.of(
-					TextInput.create("page", "Page", TextInputStyle.SHORT).build()
-			));
-		}
-
-		@Override
-		public MultiTypeMap<GoToPageKey> getModalArgs(ModalInteractionEvent event) {
-			MultiTypeMap<GoToPageKey> args = new MultiTypeMap<>();
-
-			args.put(GoToPageKey.PAGE, Objects.requireNonNull(
-					event.getValue(GoToPageKey.PAGE.str())
-			).getAsString());
-
-			return args;
-		}
-	}
+	private final BotAction<ArgKey> goToPageModalCreator;
 
 	/**
-	 * Makes the go to page action.
+	 * Makes the "go to page" action.
 	 */
-	public GoToPageAction() {
-		super(
-				null,
-				Set.of(new PrevPageButton(), new NextPageButton()),
-				Set.of(new GoToPageModal()),
-				new InVoiceWithBot()
-		);
+	public GoToPageAction(ActionManager manager) {
+		super(manager, new InVoiceWithBot());
+		addButtons(new ShiftPageButton.Previous(), new ShiftPageButton.Next());
+		GoToPageModal goToPageModal = new GoToPageModal();
+		addModals(goToPageModal);
+		this.goToPageModalCreator =
+				BotAction.respondWithModal(goToPageModal, manager, new InVoiceWithBot());
+		goToPageModalCreator.addButtons(new GoToPageButton());
+	}
+
+	public BotAction<ArgKey> getModalCreator() {
+		return goToPageModalCreator;
 	}
 
 	@Override
-	protected void execute(
-			IReplyCallback event,
-			MultiTypeMap<GoToPageKey> args,
-			InputRecord inputs
-	) {
-		if (args.containsKey(GoToPageKey.CHANGE)) {
-			boolean next = args.get(GoToPageKey.CHANGE, Boolean.class);
+	protected void execute(IReplyCallback event, Node<Key, Object> args) {
+		if (args.hasChild(Key.CHANGE)) {
+			boolean next = args.getValue(Key.CHANGE, Boolean.class);
 			if (next) {
 				MusicManager.getInstance().incrementPage(
 						Objects.requireNonNull(event.getGuild()),
@@ -127,7 +58,7 @@ public class GoToPageAction extends BotAction<GoToPageAction.GoToPageKey> {
 				);
 			}
 		} else {
-			String rawPage = args.get(GoToPageKey.PAGE, String.class);
+			String rawPage = args.getValue(Key.PAGE, String.class);
 			try {
 				MusicManager.getInstance().setPage(
 						Objects.requireNonNull(event.getGuild()),
@@ -147,7 +78,7 @@ public class GoToPageAction extends BotAction<GoToPageAction.GoToPageKey> {
 	/**
 	 * Argument keys for {@link GoToPageAction}.
 	 */
-	public enum GoToPageKey implements ArgKey {
+	public enum Key implements ArgKey {
 		PAGE,
 		CHANGE
 	}

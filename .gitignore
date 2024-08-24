@@ -8,5 +8,5 @@ lib/
 *.txt
 host_connect.*
 botFiles/
-*.properties
-!Properties Templates/
+#Only ignore .properties in root foler - any other .properties files are templates, and should be included
+/.properties

@@ -27,13 +27,13 @@ import no.smileyface.discordbot.model.intermediary.events.ShuffleChangedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TrackQueuedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TrackSkippedEvent;
 import no.smileyface.discordbot.model.intermediary.events.TracksRemovedEvent;
-import no.smileyface.discordbotframework.InputRecord;
+import no.smileyface.discordbotframework.Identifier;
 
 public class TrackQueueMessage implements QueueEventListener {
 	private static final int QUEUE_PAGE_SIZE = 10;
 
 	private final TrackQueue queue;
-	private final InputRecord actionInputs;
+	private final Identifier identifier;
 
 	private Message playerMessage;
 	private String lastCommand;
@@ -42,9 +42,9 @@ public class TrackQueueMessage implements QueueEventListener {
 	private int page;
 	private int lastPage;
 
-	public TrackQueueMessage(TrackQueue queue, InputRecord actionInputs) {
+	public TrackQueueMessage(TrackQueue queue, Identifier identifier) {
 		this.queue = queue;
-		this.actionInputs = actionInputs;
+		this.identifier = identifier;
 
 		this.musicEnded = false;
 		this.musicPaused = false;
@@ -146,16 +146,16 @@ public class TrackQueueMessage implements QueueEventListener {
 					.getPlayerChannel()
 					.sendMessageEmbeds(embeds)
 					.addActionRow(
-							actionInputs.findButton("skipButton"),
-							actionInputs.findButton("playPauseButton"),
-							actionInputs.findButton("queueButton"),
-							actionInputs.findButton("stopButton")
+							identifier.findButton("skipButton").orElseThrow(),
+							identifier.findButton("playPauseButton").orElseThrow(),
+							identifier.findButton("queueButton").orElseThrow(),
+							identifier.findButton("stopButton").orElseThrow()
 					).addActionRow(
-							actionInputs.findButton("prevPageButton"),
-							actionInputs.findButton("nextPageButton"),
-							actionInputs.findButton("shuffleButton"),
-							actionInputs.findButton("repeatButton"),
-							actionInputs.findButton("goToPageButton")
+							identifier.findButton("prevPageButton").orElseThrow(),
+							identifier.findButton("nextPageButton").orElseThrow(),
+							identifier.findButton("shuffleButton").orElseThrow(),
+							identifier.findButton("repeatButton").orElseThrow(),
+							identifier.findButton("goToPageButton").orElseThrow()
 					).complete();
 		} else {
 			playerMessage.editMessageEmbeds(embeds).queue();

@@ -4,7 +4,7 @@ import no.smileyface.discordbot.model.apis.ApiException;
 import no.smileyface.discordbot.model.apis.UnsupportedApiException;
 
 /**
- * A generic container for any external APIs.
+ * A generic container for any optional external APIs, that standardize access to them.
  *
  * @param <A> The type of the object that serves as an access point to the API
  */
@@ -23,15 +23,16 @@ public interface ApiContainer<A> {
 	/**
 	 * If the API is supported or not. The default implementation calls
 	 * {@link #withApi(ApiConsumer)} with an empty consumer, returning {@code true} if it succeeds,
-	 * and {@code false} if it throws an {@link ApiException} or an {@link UnsupportedApiException}
+	 * and {@code false} if it throws an {@link ApiException} or an {@link UnsupportedApiException}.
+	 * While this brute-force approach works,
+	 * a more graceful implementation is preferred if possible.
 	 *
 	 * @return If the API is supported or not
 	 */
 	default boolean isSupported() {
 		boolean supported;
 		try {
-			withApi(api -> {
-			});
+			withApi(api -> {});
 			supported = true;
 		} catch (ApiException | UnsupportedApiException ignored) {
 			supported = false;

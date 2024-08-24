@@ -3,26 +3,25 @@ package no.smileyface.discordbot.actions.misc;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import no.smileyface.discordbotframework.InputRecord;
-import no.smileyface.discordbotframework.entities.ActionCommand;
+import no.smileyface.discordbot.actions.misc.commands.CreditsCommand;
+import no.smileyface.discordbotframework.ActionManager;
+import no.smileyface.discordbotframework.data.Node;
 import no.smileyface.discordbotframework.entities.BotAction;
-import no.smileyface.discordbotframework.misc.MultiTypeMap;
+import no.smileyface.discordbotframework.entities.GenericBotAction;
 
 //DO NOT REMOVE THIS COMMAND
 /**
  * Shows bot credits.
  */
-public class CreditsAction extends BotAction<BotAction.ArgKey> {
-    public CreditsAction() {
-        super(new ActionCommand<>(Commands.slash("credits", "Shows bot credits")));
+public class CreditsAction extends BotAction<GenericBotAction.ArgKey> {
+    public CreditsAction(ActionManager manager) {
+        super(manager, new CreditsCommand());
     }
 
     @Override
     protected void execute(
             IReplyCallback event,
-            MultiTypeMap<ArgKey> args,
-            InputRecord inputs
+            Node<ArgKey, Object> args
     ) {
         JDA jda = event.getJDA();
         User smiley = jda.retrieveUserById(234724168183054336L).complete();
