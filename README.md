@@ -42,7 +42,7 @@ A token file is a plain text file with a bot token inside it.</p>
 </ol>
 <p><b>Note (v1.0.0):</b> The token file name in "activeBot.txt" is case-sensitive.</p>
 
-<h2>YouTube authentication (v1.7.1+)</h2>
+<h2>YouTube authentication (v1.8.1+)</h2>
 <p>
     Sometimes, YouTube might flag your bot's request as "suspicious" and block your request,
     requiring your bot to "sign in" to access YouTube:
