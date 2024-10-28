@@ -42,6 +42,34 @@ A token file is a plain text file with a bot token inside it.</p>
 </ol>
 <p><b>Note (v1.0.0):</b> The token file name in "activeBot.txt" is case-sensitive.</p>
 
+<h2>YouTube authentication (v1.7.1+)</h2>
+<p>
+    Sometimes, YouTube might flag your bot's request as "suspicious" and block your request,
+    requiring your bot to "sign in" to access YouTube:
+</p>
+<img src="readmeImgs/pleaseSignIn.png" alt="image showing the bot failing to play a track due to 'please sign in' error">
+In this case, follow these steps to authenticate your bot:
+<h3>Requires:</h3>
+<ul>
+    <li>A burner YouTube account (DO NOT USE AN ACCOUNT YOU CARE ABOUT, <b>IT CAN GET TERMINATED!</b>)</li>
+</ul>
+<h3>Setup steps:</h3>
+<ol>
+    <li>Run the bot as normal, play at least one track (does not matter if it succeeds or not)</li>
+    <li>
+        <p>Check your console output, you should see something like this:</p>
+        <img src="readmeImgs/oauthCode.png" alt="image showing oauth code in console">
+    </li>
+    <li>
+        Click the link provided (<a href="https://www.google.com/device">https://www.google.com/device</a>)
+        and enter the code you're given. Keep the bot running
+    </li>
+    <li>Follow the steps & connect the bot to your burner account</li>
+    <li>If done correctly, there should now be a new message in your console with a long token (make sure the bot is still running)</li>
+    <li>In your bot's .properties file, fill in "token.youtube.oauth = [YOUTUBE_OAUTH_TOKEN]" with the oauth token given in the last step</li>
+    <li>That's it, your bot is now authenticated as the burner account you connected it to, and should no longer get blocked</li>
+</ol>
+
 <h2>Owner commands (v1.6.2+):</h2>
 <p>
     As the bot owner, you have access to certain special "owner commands".

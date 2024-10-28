@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
+import no.smileyface.discordbot.Properties;
 import no.smileyface.discordbot.actions.music.PlayAction;
 import no.smileyface.discordbot.model.MusicTrack;
 import no.smileyface.discordbot.model.TrackQueue;
@@ -47,7 +48,19 @@ public class MusicManager {
 
 	private MusicManager() {
 		playerManager = new DefaultAudioPlayerManager();
-		playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+		YoutubeAudioSourceManager source = new YoutubeAudioSourceManager();
+		String ytOauthToken = Properties
+				.getChild("token")
+				.getChild("youtube")
+				.getChild("oauth")
+				.getValue();
+		// No valid token should satisfy this condition,
+		// so this works as a simple "safeguard" against gibberish input
+		if (ytOauthToken != null && (ytOauthToken.length() < 30 || ytOauthToken.contains(" "))) {
+			ytOauthToken = null;
+		}
+		source.useOauth2(ytOauthToken, ytOauthToken != null);
+		playerManager.registerSourceManager(source);
 		AudioSourceManagers.registerRemoteSources(playerManager,
 				com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager.class
 		);
