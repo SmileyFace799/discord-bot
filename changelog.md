@@ -1,7 +1,11 @@
 # Changelog:
 
+## v1.8.2
+**NB: Older versions are no longer able to play music**
+### Technical:
+- Modified: Updated `v2` (`youtube-source`) to version `1.11.0`
+
 ## v1.8.1
-**NB: Older versions do not support YouTube oauth2 authentication, and may therefore not be able to play most songs**
 ### Technical:
 - Added: Oauth2 authentication option for YouTube
 - Added: New .properties template that includes a YouTube oauth2 token property
@@ -35,7 +39,7 @@
 - Removed: ActionUtil
 
 ## v1.7.1
-<br/>**NB: Older versions are no longer able to play music**
+**NB: Older versions are no longer able to play music**
 - Modified: Updated `v2` (`youtube-source`) to version `1.5.1`
 
 ## v1.7.0
