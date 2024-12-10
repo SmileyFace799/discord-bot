@@ -1,7 +1,12 @@
 # Changelog:
 
-## v1.8.2
+## v1.8.3
 **NB: Older versions are no longer able to play music**
+### Technical:
+- Modified: Updated `v2` (`youtube-source`) to version `1.11.1`
+
+
+## v1.8.2
 ### Technical:
 - Modified: Updated `v2` (`youtube-source`) to version `1.11.0`
 
