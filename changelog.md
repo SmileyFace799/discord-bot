@@ -1,7 +1,12 @@
 # Changelog:
 
-## v1.8.5
+## v1.8.6
 **NOTE: Older versions are no longer able to play music**
+### Technical:
+- Modified: Updated `lavaplayer` to version `2.2.3`
+- Modified: Updated `v2` (`youtube-source`) to version `1.13.0`
+
+## v1.8.5
 ### Technical:
 - Modified: Updated `v2` (`youtube-source`) to version `1.12.0`
 
