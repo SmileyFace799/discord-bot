@@ -1,5 +1,8 @@
 # Changelog:
 
+## v1.8.7
+- Modified: Updated `v2` (`youtube-source`) to version `LATEST`. While this is typically bad practice, this library breaks & updates constantly, so the latest version is often needed for this to even work
+
 ## v1.8.6
 **NOTE: Older versions are no longer able to play music**
 ### Technical:
