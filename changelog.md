@@ -1,10 +1,14 @@
 # Changelog:
+## v1.8.8
+**NOTE: Older versions are no longer able to play music**
+### Technical:
+- Modified: Updated `JDA` to version `5.6.1`
 
 ## v1.8.7
+### Technical:
 - Modified: Updated `v2` (`youtube-source`) to version `LATEST`. While this is typically bad practice, this library breaks & updates constantly, so the latest version is often needed for this to even work
 
 ## v1.8.6
-**NOTE: Older versions are no longer able to play music**
 ### Technical:
 - Modified: Updated `lavaplayer` to version `2.2.3`
 - Modified: Updated `v2` (`youtube-source`) to version `1.13.0`
