@@ -3,6 +3,7 @@
 **NOTE: Older versions are no longer able to play music**
 ### Technical:
 - Modified: Updated `JDA` to version `5.6.1`
+- Modified: Updated `lavaplayer` to version `2.2.4`
 
 ## v1.8.7
 ### Technical:
